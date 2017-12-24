@@ -12,6 +12,7 @@ GladiusEx.defaults = {
 		globalFontShadowColor = { r = 0, g = 0, b = 0, a = 0 },
 		globalBarTexture = GladiusEx.default_bar_texture,
 		showParty = true,
+        hideSelf = false,
 		superFS = true,
 		testUnits = {
 			["arena1"] = { health = 350000, maxHealth = 350000, power = 180000, maxPower = 300000, powerType = 0, unitClass = "MAGE", unitRace = "Scourge", specID = 64 },
@@ -474,6 +475,19 @@ function GladiusEx:SetupOptions()
 									end
 								end,
 								order = 11,
+							},
+                            hideSelf = {
+								type = "toggle",
+								name = L["Hide self frame"],
+								desc = L["Hide the player's frame"],
+								set = function(info, value)
+									setOption(info, value)
+                                    if GladiusEx:IsArenaShown() then
+										GladiusEx:HideFrames()
+										GladiusEx:ShowFrames()
+									end
+								end,
+								order = 12,
 							},
 							advancedOptions = {
 								type = "toggle",

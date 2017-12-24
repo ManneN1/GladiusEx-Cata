@@ -526,6 +526,9 @@ function GladiusEx:UpdatePartyFrames()
 			self:HideUnit(unit)
 		end
 	end
+	if self.db.base.hideSelf then
+		self:HideUnit("player")
+	end
 
 	self:UpdateBackground("party")
 end

@@ -100,6 +100,10 @@ L["Interrupts"] = true
 
 L["The Arena battle has begun!"] = "The Arena battle has begun!"
 
+
+L["Hide self frame"] = true
+L["Hide the player's frame"] = true 
+
 -- General
 L["Highlight player target"] = true
 L["Show border around your target"] = true
