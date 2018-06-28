@@ -1,7 +1,7 @@
 ﻿GladiusEx = LibStub("AceAddon-3.0"):NewAddon("GladiusEx", "AceEvent-3.0")
 
 local fn = LibStub("LibFunctional-1.0")
-local LSR = LibStub("LibSpecRoster-1.0")
+--local LSR = LibStub("LibSpecRoster-1.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("GladiusEx")
 local RC = LibStub("LibRangeCheck-2.0")
 local LSM = LibStub("LibSharedMedia-3.0")
@@ -358,7 +358,7 @@ function GladiusEx:OnEnable()
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("UNIT_PET", "UpdateUnitGUID")
 	self:RegisterEvent("UNIT_PORTRAIT_UPDATE", "UpdateUnitGUID")
-	LSR.RegisterMessage(self, "LSR_SpecializationChanged")
+	--LSR.RegisterMessage(self, "LSR_SpecializationChanged")
 	RC.RegisterCallback(self, RC.CHECKERS_CHANGED, "UpdateRangeCheckers")
 	self.dbi.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
 	self.dbi.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
@@ -388,7 +388,7 @@ end
 
 function GladiusEx:OnDisable()
 	self:UnregisterAllEvents()
-	LSR.UnregisterAllMessages(self)
+	--LSR.UnregisterAllMessages(self)
 	self.dbi.UnregisterAllEvents(self)
 	self:HideFrames()
 end
@@ -492,7 +492,7 @@ function GladiusEx:UpdateArenaFrames()
 
 	local numOpps = self.arena_size
 
-	log("UpdateArenaFrames:", numOpps, GetNumArenaOpponents(), GetNumArenaOpponentSpecs())
+	--log("UpdateArenaFrames:", numOpps, GetNumArenaOpponents(), GetNumArenaOpponentSpecs())
 
 	self:UpdateAnchor("arena")
 
@@ -796,17 +796,17 @@ function GladiusEx:UpdateUnitState(unit, stealth)
 	end
 end
 
-function GladiusEx:LSR_SpecializationChanged(event, guid, unitID, specID)
-	for u, _ in pairs(party_units) do
-		if UnitGUID(u) == guid then
-			self:UpdateUnitSpecialization(u, specID)
-			break
-		end
-	end
-end
+--function GladiusEx:LSR_SpecializationChanged(event, guid, unitID, specID)
+--	for u, _ in pairs(party_units) do
+--		if UnitGUID(u) == guid then
+--			self:UpdateUnitSpecialization(u, specID)
+--			break
+--		end
+--	end
+--end
 
 function GladiusEx:CheckUnitSpecialization(unit)
-	local _, specID = LSR:getSpecialization(UnitGUID(unit))
+	--local _, specID = LSR:getSpecialization(UnitGUID(unit))
 
 	self:UpdateUnitSpecialization(unit, specID)
 end
