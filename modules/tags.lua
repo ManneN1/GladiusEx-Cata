@@ -13,7 +13,7 @@ local UnitClass, UnitRace = UnitClass, UnitRace
 local UnitHealth, UnitHealthMax = UnitHealth, UnitHealthMax
 local UnitPower, UnitPowerMax = UnitPower, UnitPowerMax
 local UnitGetTotalAbsorbs = UnitGetTotalAbsorbs
-local UnitExists, UnitIsConnected, GetSpecializationInfoByID = UnitExists, UnitIsConnected, GetSpecializationInfoByID
+local UnitExists, UnitIsConnected = UnitExists, UnitIsConnected
 
 local Tags = GladiusEx:NewGladiusExModule("Tags", {
 	tags = {},
@@ -972,7 +972,7 @@ function Tags:GetBuiltinTags()
 			if not specID or specID == 0 then
 				return ""
 			end
-			return select(2, GetSpecializationInfoByID(specID))
+			return select(2, "BALANCE")
 		end,
 		["spec:short"] = function(unit)
 			local specID = GladiusEx:IsTesting(unit) and GladiusEx.testing[unit].specID or GladiusEx.buttons[unit].specID or 0

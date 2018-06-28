@@ -21,7 +21,7 @@ GladiusEx.defaults = {
 			["arena5"] = { health = 100000, maxHealth = 370000, power = 10, maxPower = 100, powerType = 1, unitClass = "WARRIOR", unitRace = "Gnome", specID = 71 },
 
 			["player"] = { health = 250000, maxHealth = 350000, power = 18000, maxPower = 300000, powerType = 0, unitClass = "PRIEST", unitRace = "Draenei", specID = 256 },
-			["party1"] = { health = 300000, maxHealth = 320000, power = 10000, maxPower = 12000, powerType = 3, unitClass = "MONK", unitRace = "Pandaren", specID = 269 },
+			["party1"] = { health = 300000, maxHealth = 320000, power = 10000, maxPower = 12000, powerType = 1, unitClass = "WARRIOR", unitRace = "Pandaren", specID = 71 },
 			["party2"] = { health = 220000, maxHealth = 350000, power = 280000, maxPower = 300000, powerType = 0, unitClass = "WARLOCK", unitRace = "Orc", specID = 267 },
 			["party3"] = { health = 100000, maxHealth = 300000, power = 10, maxPower = 100, powerType = 1, unitClass = "WARRIOR", unitRace = "Troll", specID = 71 },
 			["party4"] = { health = 200000, maxHealth = 400000, power = 80, maxPower = 130, powerType = 6, unitClass = "DEATHKNIGHT", unitRace = "Dwarf", specID = 252 },

@@ -7,7 +7,7 @@ local strfind = string.find
 local pairs = pairs
 local min = math.min
 local UnitHealth, UnitHealthMax, UnitClass = UnitHealth, UnitHealthMax, UnitClass
-local UnitGetIncomingHeals, UnitGetTotalAbsorbs = UnitGetIncomingHeals, UnitGetTotalAbsorbs
+local UnitGetIncomingHeals = UnitGetIncomingHeals
 
 local HealthBar = GladiusEx:NewGladiusExModule("HealthBar", {
 	healthBarAttachTo = "Frame",
@@ -189,7 +189,7 @@ function HealthBar:UpdateIncomingAbsorbs(unit)
 	if not self.frame[unit] then return end
 	if not self.db[unit].healthBarIncomingAbsorbs then return end
 
-	local incamount = UnitGetTotalAbsorbs(unit) or 0
+	local incamount = 0
 	self:SetIncomingBarAmount(unit, self.frame[unit].incabsorbs, incamount, self.db[unit].healthBarIncomingAbsorbsCap)
 end
 
