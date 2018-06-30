@@ -9,7 +9,6 @@ local pairs, select, unpack = pairs, select, unpack
 local GetTime, SetPortraitTexture = GetTime, SetPortraitTexture
 local GetSpellInfo, UnitAura, UnitClass, UnitGUID, UnitBuff, UnitDebuff = GetSpellInfo, UnitAura, UnitClass, UnitGUID, UnitBuff, UnitDebuff
 local UnitIsVisible, UnitIsConnected, GetSpecializationInfoByID, GetTexCoordsForRole = UnitIsVisible, UnitIsConnected, GetSpecializationInfoByID, GetTexCoordsForRole
-local CLASS_BUTTONS = CLASS_BUTTONS
 
 -- NOTE: this list can be modified from the ClassIcon module options, no need to edit it here
 -- Nonetheless, if you think that we missed an important aura, please post it on the addon site at curse or wowace
@@ -309,6 +308,11 @@ function ClassIcon:ScanAuras(unit)
 	local best_priority = 0
 	local best_name, best_icon, best_duration, best_expires
 
+	local interrupt = {Interrupt:GetInterruptFor(unit)}
+	if interrupt[1] then
+		return unpack(interrupt) 
+	end
+
 
 	-- debuffs
 	for index = 1, 40 do
@@ -343,6 +347,7 @@ function ClassIcon:UpdateAura(unit)
 	if not self.frame[unit] or not self.db[unit].classIconImportantAuras then return end
 
 	local name, icon, duration, expires = self:ScanAuras(unit)
+
 	if name then
 		self:SetAura(unit, name, icon, duration, expires)
 	else
