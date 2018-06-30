@@ -235,7 +235,7 @@ function ClassIcon:OnEnable()
 	self:RegisterEvent("UNIT_AURA")
 	self:RegisterEvent("UNIT_PORTRAIT_UPDATE", "UNIT_AURA")
 	self:RegisterEvent("UNIT_MODEL_CHANGED")
-	self:RegisterMessage("GLADIUS_SPEC_UPDATE", "UNIT_AURA")
+	self:RegisterMessage("GLADIUSEX_SPEC_UPDATE", "UNIT_AURA")
 
 	if not self.frame then
 		self.frame = {}
@@ -461,7 +461,7 @@ function ClassIcon:SetClassIcon(unit)
 	-- get unit class
 	local class, specID
 	if not GladiusEx:IsTesting(unit) then
-		class = select(2, UnitClass(unit))
+		class = UnitExists(unit) and select(2, UnitClass(unit)) or nil
 		-- check for arena prep info
 		if not class then
 			class = GladiusEx.buttons[unit].class

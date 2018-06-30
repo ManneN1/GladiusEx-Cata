@@ -195,10 +195,6 @@ function HealthBar:Update(unit)
 	self.frame[unit]:SetMinMaxValues(0, 100)
 	self.frame[unit]:SetValue(100)
 
-	-- incframe
-	self.frame[unit].inc_frame:SetFrameLevel(10)
-
-
 	-- update health bar background
 	self.frame[unit].background:SetTexture(bar_texture)
 	self.frame[unit].background:SetVertexColor(self.db[unit].healthBarBackgroundColor.r, self.db[unit].healthBarBackgroundColor.g,

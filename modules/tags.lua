@@ -3,6 +3,43 @@ local fn = LibStub("LibFunctional-1.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("GladiusEx")
 local LSM = LibStub("LibSharedMedia-3.0")
 
+
+local specIDToName = {
+    [250] = "Blood",
+    [251] = "Frost",
+    [252] = "Unholy",
+    [577] = "Havoc",
+    [581] = "Vengeance",
+    [102] = "Balance",
+    [103] = "Feral",
+    [105] = "Restoration",
+    [253] = "Beast Mastery",
+    [254] = "Marksmanship",
+    [255] = "Survival",
+    [62] = "Arcane",
+    [63] = "Fire",
+    [64] = "Frost",
+    [65] = "Holy",
+    [66] = "Protection",
+    [70] = "Retribution",
+    [256] = "Discipline",
+    [257] = "Holy",
+    [258] = "Shadow",
+    [259] = "Assassination",
+    [260] = "Combat",
+    [261] = "Subtlety",
+    [262] = "Elemental",
+    [263] = "Enhancement",
+    [264] = "Restoration",
+    [265] = "Affliction",
+    [266] = "Demonology",
+    [267] = "Destruction",
+    [71] = "Arms",
+    [72] = "Fury",
+    [73] = "Protection"
+}
+
+
 -- global functions
 local strfind, strgsub, strgmatch, strformat = string.find, string.gsub, string.gmatch, string.format
 local tinsert = table.insert
@@ -972,7 +1009,8 @@ function Tags:GetBuiltinTags()
 			if not specID or specID == 0 then
 				return ""
 			end
-			return select(2, "BALANCE")
+            print("THIS IS SPEC ID: "..tostring(specID).." for unit "..unit)
+			return specIDToName[tostring(specID)]
 		end,
 		["spec:short"] = function(unit)
 			local specID = GladiusEx:IsTesting(unit) and GladiusEx.testing[unit].specID or GladiusEx.buttons[unit].specID or 0
@@ -1081,8 +1119,8 @@ function Tags:GetBuiltinTagsEvents()
 		["class"] = "",
 		["class:short"] = "",
 		["race"] = "",
-		["spec"] = "GLADIUS_SPEC_UPDATE",
-		["spec:short"] = "GLADIUS_SPEC_UPDATE",
+		["spec"] = "GLADIUSEX_SPEC_UPDATE",
+		["spec:short"] = "GLADIUSEX_SPEC_UPDATE",
 
 		["health"] = "UNIT_HEALTH UNIT_HEALTH_FREQUENT UNIT_MAXHEALTH",
 		["maxhealth"] = "UNIT_HEALTH UNIT_HEALTH_FREQUENT UNIT_MAXHEALTH",

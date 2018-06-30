@@ -30,6 +30,41 @@ local party_units = {
 	["party4"] = true,
 }
 
+local specIDToName = {
+    [250] = "Blood",
+    [251] = "Frost",
+    [252] = "Unholy",
+    [577] = "Havoc",
+    [581] = "Vengeance",
+    [102] = "Balance",
+    [103] = "Feral",
+    [105] = "Restoration",
+    [253] = "Beast Mastery",
+    [254] = "Marksmanship",
+    [255] = "Survival",
+    [62] = "Arcane",
+    [63] = "Fire",
+    [64] = "Frost",
+    [65] = "Holy",
+    [66] = "Protection",
+    [70] = "Retribution",
+    [256] = "Discipline",
+    [257] = "Holy",
+    [258] = "Shadow",
+    [259] = "Assassination",
+    [260] = "Combat",
+    [261] = "Subtlety",
+    [262] = "Elemental",
+    [263] = "Enhancement",
+    [264] = "Restoration",
+    [265] = "Affliction",
+    [266] = "Demonology",
+    [267] = "Destruction",
+    [71] = "Arms",
+    [72] = "Fury",
+    [73] = "Protection"
+}
+
 GladiusEx.party_units = party_units
 GladiusEx.arena_units = arena_units
 
@@ -246,6 +281,9 @@ function GladiusEx:OnInitialize()
 				return self.db.base.testUnits[k]
 			end
 		})
+        
+    -- spec detection
+	self.specSpells = self:GetSpecList()
 
 	-- buttons
 	self.buttons = {}
@@ -349,12 +387,18 @@ function GladiusEx:OnEnable()
 
 	-- register the appropriate events
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
-	self:RegisterEvent("ARENA_OPPONENT_UPDATE")
-	self:RegisterEvent("ARENA_PREP_OPPONENT_SPECIALIZATIONS")
+    
+	--self:RegisterEvent("ARENA_OPPONENT_UPDATE")
+	--self:RegisterEvent("ARENA_PREP_OPPONENT_SPECIALIZATIONS")
+    -- spec detection
+	self:RegisterEvent("UNIT_AURA")	
+	self:RegisterEvent("UNIT_SPELLCAST_START")
+    self:RegisterEvent("CHAT_MSG_BG_SYSTEM_NEUTRAL")
+    
 	self:RegisterEvent("UNIT_NAME_UPDATE")
 	self:RegisterEvent("UNIT_HEALTH")
 	self:RegisterEvent("UNIT_MAXHEALTH", "UNIT_HEALTH")
-	self:RegisterEvent("GROUP_ROSTER_UPDATE")
+	self:RegisterEvent("PARTY_MEMBERS_CHANGED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("UNIT_PET", "UpdateUnitGUID")
 	self:RegisterEvent("UNIT_PORTRAIT_UPDATE", "UpdateUnitGUID")
@@ -437,9 +481,9 @@ function GladiusEx:GetArenaSize(min)
 	end
 
 	-- try to guess the current arena size
-	local guess = max(min or 0, 2, GetNumArenaOpponents(), GetNumArenaOpponentSpecs(), GetNumGroupMembers(LE_PARTY_CATEGORY_HOME), GetNumGroupMembers(LE_PARTY_CATEGORY_INSTANCE))
+	local guess = max(min or 0, 1, self.seenEnemies, self.knownSpecs, GetNumPartyMembers())
 
-	log("GetArenaSize", min, GetNumArenaOpponents(), GetNumArenaOpponentSpecs(), GetNumGroupMembers(LE_PARTY_CATEGORY_HOME), GetNumGroupMembers(LE_PARTY_CATEGORY_INSTANCE),
+	log("GetArenaSize", min, self.seenEnemies, self.knownSpecs, GetNumGroupMembers(),
 		" => ", guess)
 
 	if guess >= 4 then
@@ -454,7 +498,8 @@ function GladiusEx:UpdatePartyFrames()
 		self:QueueUpdate()
 		return
 	end
-	local group_members = self.arena_size
+    
+	local group_members = self:GetArenaSize()
 
 	log("UpdatePartyFrames", group_members)
 	self:UpdateAnchor("party")
@@ -466,9 +511,10 @@ function GladiusEx:UpdatePartyFrames()
 			self:UpdateUnitState(unit, false)
 			self:ShowUnit(unit)
 
-			if not self:IsTesting() and not UnitExists(unit) then
-				self:SoftHideUnit(unit)
-			end
+            -- Do question mark icon!
+			--if not self:IsTesting() and not UnitExists(unit) then
+			--	self:SoftHideUnit(unit)
+			--end
 
 			-- test environment
 			if self:IsTesting(unit) then
@@ -489,10 +535,9 @@ function GladiusEx:UpdateArenaFrames()
 		self:QueueUpdate()
 		return
 	end
-
+    
+    self:GetArenaSize()
 	local numOpps = self.arena_size
-
-	--log("UpdateArenaFrames:", numOpps, GetNumArenaOpponents(), GetNumArenaOpponentSpecs())
 
 	self:UpdateAnchor("arena")
 
@@ -605,6 +650,9 @@ function GladiusEx:HideFrames()
 	self.arena_parent:Hide()
 	self.party_parent:Hide()
 	self.arena_size = 0
+    self.knownSpecs = 0
+    self.seenEnemies = 0
+    self.arenaStarted = false
 end
 
 function GladiusEx:IsPartyShown()
@@ -622,9 +670,17 @@ function GladiusEx:PLAYER_ENTERING_WORLD()
 	if instanceType == "arena" then
 		self:SetTesting(false)
 		self:ShowFrames()
-		self:ARENA_PREP_OPPONENT_SPECIALIZATIONS()
 		log("ENABLE LOGGING")
-	else
+        self:UpdateFrames()
+        
+        -- check for late start (game already begun)
+        if strfind(_G["AlwaysUpFrame1Text"], "Gold") then
+            self:CHAT_MSG_BG_SYSTEM_NEUTRAL(event, L["The Arena battle has begun!"])
+        end
+        
+        self:RegisterEvent("UNIT_AURA")
+        self:RegisterEvent("UNIT_SPELLCAST_START")
+    else
 		self:CheckFirstRun()
 
 		if not self:IsTesting() then
@@ -634,54 +690,89 @@ function GladiusEx:PLAYER_ENTERING_WORLD()
 	end
 end
 
-function GladiusEx:ARENA_PREP_OPPONENT_SPECIALIZATIONS()
-	self:CheckArenaSize()
-
-	local numOpps = GetNumArenaOpponentSpecs()
-	for i = 1, numOpps do
-		local specID = GetArenaOpponentSpec(i)
-		local unitid = "arena" .. i
-
-		self:UpdateUnitSpecialization(unitid, specID)
-	end
+-- write tracking mechanism for arena started / new player joined
+-- on arena started search for class / spec for all opponents
+-- on new enemy joined search for class / spec for highest id opponent
+function GladiusEx:CHAT_MSG_BG_SYSTEM_NEUTRAL(event, msg)
+    -- update frames (with enemy classes/specs)
+    if (string.upper(msg) == string.upper(L["The Arena battle has begun!"])) then
+        self.arenaStarted = true
+        self:CheckNumEnemyPlayers(true)
+        
+        for i = 1, self.seenEnemies do
+            self:IdentifyUnitSpecialization("arena"..i)
+        end
+        
+        -- set self.arena_size properly and update all frames
+        self:CheckArenaSize()
+        
+        -- start looking for updates on center timer for new players joined
+        hooksecurefunc(WorldStateAlwaysUpFrame_Update, CheckNumEnemyPlayers)
+    end
 end
 
-function GladiusEx:CheckOpponentSpecialization(unit)
-	local id = strmatch(unit, "^arena(%d+)$")
-	if id then
-		local specID = GetArenaOpponentSpec(tonumber(id))
-		if specID and specID > 0 then
-			self:UpdateUnitSpecialization(unit, specID)
-		end
-	end
+function GladiusEx:CheckNumEnemyPlayers(shouldNotUpdate)
+    if not self.arenaStarted then return end
+    for i=1,2 do 
+        _, tmp = strsplit(": ", _G["AlwaysUpFrame"..i.."Text"])
+        txt = max(tonumber(strsplit(" Players", tmp, 2)), txt)
+    end
+    if self.seenEnemies < txt then
+        self.seenEnemies = txt
+        if not shouldNotUpdate then
+            self:CheckArenaSize()
+        end
+    end
 end
 
-function GladiusEx:ARENA_OPPONENT_UPDATE(event, unit, type)
-	log("ARENA_OPPONENT_UPDATE", unit, type)
-	-- ignore pets
-	if not self:IsArenaUnit(unit) then return end
+function GladiusEx:UNIT_AURA(event, unit)
+    if (not self:IsArenaUnit(unit) or self:IsPartyUnit(unit)) then return end
 
-	if type == "seen" or type == "destroyed" then
-		self:ShowUnit(unit)
-		self:CheckOpponentSpecialization(unit)
-		self:UpdateUnitState(unit, false)
-		self:CheckArenaSize(unit)
-	elseif type == "unseen" then
-		self:UpdateUnitState(unit, true)
-	elseif type == "cleared" then
-		if not self:IsTesting() then
-			self:SoftHideUnit(unit)
-		end
-	end
-	self:RefreshUnit(unit)
+    if self.knownSpecs == self.arena_size * 2 and not self:IsTesting() then
+        self:UnregisterEvent("UNIT_AURA")
+        return
+    end
+
+    self:IdentifyUnitSpecialization(unit)
 end
 
-function GladiusEx:GROUP_ROSTER_UPDATE()
+function GladiusEx:IdentifyUnitSpecialization(unit) 
+    if not UnitExists(unit) then return end
+    
+    for index = 1, 40 do
+      local  name, _, _, _, _, _, _, unitCaster, _ = UnitAura(unit, index, "HELPFUL")
+      if (not name) then break end
+      
+      if (self.specSpells[name] and self.buttons[unitCaster] and self.buttons[unitCaster].spec == "") then
+         self.buttons[unitCaster].spec = self.specSpells[name]
+         self.knownSpecs = self.knownSpecs + 1
+         self:SendMessage("GLADIUSEX_SPEC_UPDATE", unitCaster)
+      end     
+    end
+end
+
+function GladiusEx:UNIT_SPELLCAST_START(event, unit)
+    if self.knownSpecs == self.arena_size * 2 and not self:IsTesting() then
+        self:UnregisterEvent("UNIT_SPELLCAST_START")
+        return
+    end
+    
+    if (not self:IsArenaUnit(unit) or self:IsPartyUnit(unit)) then return end
+
+    local spell = UnitCastingInfo(unit)   
+    if (self.specSpells[spell] and self.buttons[unit].spec == "") then
+        self.buttons[unit].spec = self.specSpells[spell]
+        self.knownSpecs = self.knownSpecs + 1
+        self:SendMessage("GLADIUSEX_SPEC_UPDATE", unit)
+    end
+end
+
+function GladiusEx:PARTY_MEMBERS_CHANGED()
 	if self:IsArenaShown() or self:IsPartyShown() then
 		self:UpdateAllGUIDs()
 		local u = self:CheckArenaSize()
-		if not u and self:IsPartyShown() then
-			self:UpdatePartyFrames()
+		if not u then
+			self:UpdateFrames()
 		end
 	end
 end
@@ -796,38 +887,6 @@ function GladiusEx:UpdateUnitState(unit, stealth)
 	end
 end
 
---function GladiusEx:LSR_SpecializationChanged(event, guid, unitID, specID)
---	for u, _ in pairs(party_units) do
---		if UnitGUID(u) == guid then
---			self:UpdateUnitSpecialization(u, specID)
---			break
---		end
---	end
---end
-
-function GladiusEx:CheckUnitSpecialization(unit)
-	--local _, specID = LSR:getSpecialization(UnitGUID(unit))
-
-	self:UpdateUnitSpecialization(unit, specID)
-end
-
-function GladiusEx:UpdateUnitSpecialization(unit, specID)
-	local _, class, spec
-
-	if specID and specID > 0 then
-		_, spec, _, _, _, _, class = GetSpecializationInfoByID(specID)
-	end
-
-	specID = (specID and specID > 0) and specID or nil
-
-	if self.buttons[unit] and self.buttons[unit].specID ~= specID then
-		self.buttons[unit].class = class
-		self.buttons[unit].specID = specID
-
-		self:SendMessage("GLADIUS_SPEC_UPDATE", unit)
-	end
-end
-
 function GladiusEx:IsHandledUnit(unit)
 	return arena_units[unit] or party_units[unit]
 end
@@ -886,11 +945,6 @@ function GladiusEx:ShowUnit(unit)
 			self:QueueUpdate()
 			log("ShowUnit: tried to show, but InCombatLockdown")
 		end
-	end
-
-	-- update spec
-	if self:IsPartyUnit(unit) and not self.buttons[unit].specID then
-		self:CheckUnitSpecialization(unit)
 	end
 end
 

@@ -97,6 +97,9 @@ L["PetBar"] = "Pet"
 L["SkillHistory"] = "Skill History"
 
 -- General
+
+L["The Arena battle has begun!"] = true
+
 L["Highlight player target"] = true
 L["Show border around your target"] = true
 
