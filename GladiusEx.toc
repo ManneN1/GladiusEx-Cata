@@ -34,3 +34,4 @@ modules\tags.lua
 modules\unitbar.lua
 modules\targetbar.lua
 modules\petbar.lua
+modules\interrupts.lua

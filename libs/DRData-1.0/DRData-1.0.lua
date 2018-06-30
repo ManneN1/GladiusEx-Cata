@@ -27,208 +27,278 @@ local L = {
 	["Intercept"] = "Intercept",
 }
 
-if GetLocale() == "frFR" then
-	L["Banish"] = "Bannissement"
-	L["Controlled stuns"] = "Etourdissements contrôlés"
-	L["Cyclone"] = "Cyclone"
-	L["Disarms"] = "Désarmements"
-	L["Disorients"] = "Désorientations"
-	L["Entrapment"] = "Piège"
-	L["Fears"] = "Peurs"
-	L["Horrors"] = "Horreurs"
-	L["Mind Control"] = "Contrôle mental"
-	L["Random roots"] = "Immobilisations aléatoires"
-	L["Random stuns"] = "Etourdissemensts aléatoires"
-	L["Controlled roots"] = "Immobilisations contrôlées"
-	L["Scatter Shot"] = "Flèche de dispersion"
-	L["Dragon's Breath"] = "Souffle du dragon"
-	L["Silences"] = "Silences"
-	L["Taunts"] = "Provocations"
-end
+-- How long before DR resets ?
+Data.resetTimes = {
+	-- As of 6.1, this is always 18 seconds, and no longer has a range between 15 and 20 seconds.
+	default   = 20,
+	-- Knockbacks are a special case
+	knockback = 20,
+}
+Data.RESET_TIME = Data.resetTimes.default
 
--- How long before DR resets
--- While everyone will tell you it's 15 seconds, it's actually between 16-20 depending on luck (changes with each DR)
--- With this setting keep in mind that it's probable you will be able to re-crowd control slightly before the timer runs out (for ex. 1 second left).
-Data.RESET_TIME = 20
+-- Successives diminished durations
+Data.diminishedDurations = {
+	-- Decreases by 50%, immune at the 4th application
+	default   = { 0.50, 0.25 },
+	-- Decreases by 35%, immune at the 5th application
+	taunt     = { 0.65, 0.42, 0.27 },
+	-- Immediately immune
+	knockback = {},
+}
 
--- List of spellID -> DR category
-Data.spells = {
+-- Spells and providers by categories
+--[[ Generic format:
+	category = {
+		-- When the debuff and the spell that applies it are the same:
+		debuffId = true
+		-- When the debuff and the spell that applies it differs:
+		debuffId = spellId
+		-- When several spells apply the debuff:
+		debuffId = {spellId1, spellId2, ...}
+	}
+--]]
+
+-- See http://eu.battle.net/wow/en/forum/topic/11267997531
+-- or http://blue.mmo-champion.com/topic/326364-diminishing-returns-in-warlords-of-draenor/
+local spellsAndProvidersByCategory = {
+
+    scatter = {
+    	[19503] = true      -- Scatter Shot
+    },
+    dragons = {
+        [31661] = true       -- Dragon's Breath
+    },
+    mc = {
+        [  605] = true,            -- Mind Control
+    },
+    banish = {
+        [  710] = true        -- Banish
+    },
+    entrapment = {
+        [19185] = true    -- Entrapment
+    },
+    cyclone = {
+        [33786] = true       -- Cyclone
+    },
+    bindele = {
+        [76780] = true -- Bind Elemental
+    },
+    charge = {
+        [  100] = true        -- Charge
+    },
+    intercept = {
+        [20252] = true     -- Intercept
+    },
+    
+    horror = {
+    	[ 6789] = true, -- Death Coil
+        [64044] = true, -- Psychic Horror
+    },
+    
 	--[[ TAUNT ]]--
-	[  355] = "taunt", -- Taunt (Warrior)
-	[53477] = "taunt", -- Taunt (Hunter tenacity pet)
-	[ 6795] = "taunt", -- Growl (Druid)
-	[56222] = "taunt", -- Dark Command
-	[62124] = "taunt", -- Hand of Reckoning
-	[31790] = "taunt", -- Righteous Defense
-	[20736] = "taunt", -- Distracting Shot
-	[ 1161] = "taunt", -- Challenging Shout
-	[ 5209] = "taunt", -- Challenging Roar
-	[57603] = "taunt", -- Death Grip
-	[36213] = "taunt", -- Angered Earth -- FIXME: NPC ability ?
-	[17735] = "taunt", -- Suffering (Voidwalker)
-	[58857] = "taunt", -- Twin Howl (Spirit wolves)
-
-	--[[ DISORIENTS ]]--
-	[49203] = "disorient", -- Hungering Cold
-	[ 6770] = "disorient", -- Sap
-	[ 1776] = "disorient", -- Gouge
-	[51514] = "disorient", -- Hex
-	[ 9484] = "disorient", -- Shackle Undead
-	[  118] = "disorient", -- Polymorph
-	[28272] = "disorient", -- Polymorph (pig)
-	[28271] = "disorient", -- Polymorph (turtle)
-	[61305] = "disorient", -- Polymorph (black cat)
-	[61025] = "disorient", -- Polymorph (serpent) -- FIXME: gone ?
-	[61721] = "disorient", -- Polymorph (rabbit)
-	[61780] = "disorient", -- Polymorph (turkey)
-	[ 3355] = "disorient", -- Freezing Trap
-	[19386] = "disorient", -- Wyvern Sting
-	[20066] = "disorient", -- Repentance
-	[90337] = "disorient", -- Bad Manner (Monkey) -- FIXME: to check
-	[ 2637] = "disorient", -- Hibernate
-	[82676] = "disorient", -- Ring of Frost
+	taunt = {
+        [  355] = true, -- Taunt (Warrior)
+        [53477] = true, -- Taunt (Hunter tenacity pet)
+        [ 6795] = true, -- Growl (Druid)
+        [56222] = true, -- Dark Command
+        [62124] = true, -- Hand of Reckoning
+        [31790] = true, -- Righteous Defense
+        [20736] = true, -- Distracting Shot
+        [ 1161] = true, -- Challenging Shout
+        [ 5209] = true, -- Challenging Roar
+        [57603] = true, -- Death Grip
+        [36213] = true, -- Angered Earth -- FIXME: NPC ability ?
+        [17735] = true, -- Suffering (Voidwalker)
+        [58857] = true, -- Twin Howl (Spirit wolves)
+	},
 
 	--[[ SILENCES ]]--
-	[50479] = "silence", -- Nether Shock (Nether ray)
-	[ 1330] = "silence", -- Garrote
-	[25046] = "silence", -- Arcane Torrent (Energy version)
-	[28730] = "silence", -- Arcane Torrent (Mana version)
-	[50613] = "silence", -- Arcane Torrent (Runic power version)
-	[69179] = "silence", -- Arcane Torrent (Rage version)
-	[80483] = "silence", -- Arcane Torrent (Focus version)
-	[15487] = "silence", -- Silence
-	[34490] = "silence", -- Silencing Shot
-	[18425] = "silence", -- Improved Kick (rank 1)
-	[86759] = "silence", -- Improved Kick (rank 2)
-	[18469] = "silence", -- Improved Counterspell (rank 1)
-	[55021] = "silence", -- Improved Counterspell (rank 2)
-	[24259] = "silence", -- Spell Lock (Felhunter)
-	[47476] = "silence", -- Strangulate
-	[18498] = "silence", -- Gag Order (Warrior talent)
-	[81261] = "silence", -- Solar Beam
-	[31935] = "silence", -- Avenger's Shield
+	silence = {
+        [50479] = true, -- Nether Shock (Nether ray)
+        [ 1330] = true, -- Garrote
+        [25046] = true, -- Arcane Torrent (Energy version)
+        [28730] = true, -- Arcane Torrent (Mana version)
+        [50613] = true, -- Arcane Torrent (Runic power version)
+        [69179] = true, -- Arcane Torrent (Rage version)
+        [80483] = true, -- Arcane Torrent (Focus version)
+        [15487] = true, -- Silence
+        [34490] = true, -- Silencing Shot
+        [18425] = true, -- Improved Kick (rank 1)
+        [86759] = true, -- Improved Kick (rank 2)
+        [18469] = true, -- Improved Counterspell (rank 1)
+        [55021] = true, -- Improved Counterspell (rank 2)
+        [24259] = true, -- Spell Lock (Felhunter)
+        [47476] = true, -- Strangulate
+        [18498] = true, -- Gag Order (Warrior talent)
+        [81261] = true, -- Solar Beam
+        [31935] = true, -- Avenger's Shield
+	},
+    
+    --[[ FEAR ]]--
+    fear = {
+    	[ 2094] = true, -- Blind
+        [ 5782] = true, -- Fear (Warlock)
+        [ 6358] = true, -- Seduction (Succubus)
+        [ 5484] = true, -- Howl of Terror
+        [ 8122] = true, -- Psychic Scream
+        [ 1513] = true, -- Scare Beast
+        [10326] = true, -- Turn Evil
+        [ 5246] = true, -- Intimidating Shout (main target)
+        [20511] = true, -- Intimidating Shout (secondary targets)
+    },
 
-	--[[ DISARMS ]]--
-	[91644] = "disarm", -- Snatch (Bird of Prey)
-	[51722] = "disarm", -- Dismantle
-	[  676] = "disarm", -- Disarm
-	[64058] = "disarm", -- Psychic Horror (Disarm effect)
-	[50541] = "disarm", -- Clench (Scorpid)
+	--[[ INCAPACITATE ]]--
+	incaps = {
+        [49203] = true, -- Hungering Cold
+        [ 6770] = true, -- Sap
+        [ 1776] = true, -- Gouge
+        [51514] = true, -- Hex
+        [ 9484] = true, -- Shackle Undead
+        [  118] = true, -- Polymorph
+        [28272] = true, -- Polymorph (pig)
+        [28271] = true, -- Polymorph (turtle)
+        [61305] = true, -- Polymorph (black cat)
+        [61025] = true, -- Polymorph (serpent) -- FIXME: gone ?
+        [61721] = true, -- Polymorph (rabbit)
+        [61780] = true, -- Polymorph (turkey)
+        [ 3355] = true, -- Freezing Trap
+        [19386] = true, -- Wyvern Sting
+        [20066] = true, -- Repentance
+        [90337] = true, -- Bad Manner (Monkey) -- FIXME: to check
+        [ 2637] = true, -- Hibernate
+        [82676] = true, -- Ring of Frost
+	},
+    
+    --[[ RANDOM STUN ]]--
+    rndstun = {
+        [64343] = true, -- Impact
+        [39796] = true, -- Stoneclaw Stun
+        [11210] = true, -- Improved Polymorph (rank 1)
+        [12592] = true, -- Improved Polymorph (rank 2)
+    },
 
-	--[[ FEARS ]]--
-	[ 2094] = "fear", -- Blind
-	[ 5782] = "fear", -- Fear (Warlock)
-	[ 6358] = "fear", -- Seduction (Succubus)
-	[ 5484] = "fear", -- Howl of Terror
-	[ 8122] = "fear", -- Psychic Scream
-	[ 1513] = "fear", -- Scare Beast
-	[10326] = "fear", -- Turn Evil
-	[ 5246] = "fear", -- Intimidating Shout (main target)
-	[20511] = "fear", -- Intimidating Shout (secondary targets)
-
-	--[[ CONTROL STUNS ]]--
-	[89766] = "ctrlstun", -- Axe Toss (Felguard)
-	[50519] = "ctrlstun", -- Sonic Blast (Bat)
-	[12809] = "ctrlstun", -- Concussion Blow
-	[46968] = "ctrlstun", -- Shockwave
-	[  853] = "ctrlstun", -- Hammer of Justice
-	[ 5211] = "ctrlstun", -- Bash
-	[24394] = "ctrlstun", -- Intimidation
-	[22570] = "ctrlstun", -- Maim
-	[  408] = "ctrlstun", -- Kidney Shot
-	[20549] = "ctrlstun", -- War Stomp
-	[20252] = "ctrlstun", -- Intercept
-	[20253] = "ctrlstun", -- Intercept
-	[44572] = "ctrlstun", -- Deep Freeze
-	[30283] = "ctrlstun", -- Shadowfury
-	[ 2812] = "ctrlstun", -- Holy Wrath
-	[22703] = "ctrlstun", -- Inferno Effect
-	[54785] = "ctrlstun", -- Demon Leap (Warlock)
-	[47481] = "ctrlstun", -- Gnaw (Ghoul)
-	[93433] = "ctrlstun", -- Burrow Attack (Worm)
-	[56626] = "ctrlstun", -- Sting (Wasp)
-	[85388] = "ctrlstun", -- Throwdown
-	[ 1833] = "ctrlstun", -- Cheap Shot
-	[ 9005] = "ctrlstun", -- Pounce
-	[88625] = "ctrlstun", -- Holy Word: Chastise
-
-	--[[ RANDOM STUNS ]]--
-	[64343] = "rndstun", -- Impact
-	[39796] = "rndstun", -- Stoneclaw Stun
-	[11210] = "rndstun", -- Improved Polymorph (rank 1)
-	[12592] = "rndstun", -- Improved Polymorph (rank 2)
+	--[[ STUNS ]]--
+	stun = {
+        [89766] = true, -- Axe Toss (Felguard)
+        [50519] = true, -- Sonic Blast (Bat)
+        [12809] = true, -- Concussion Blow
+        [46968] = true, -- Shockwave
+        [  853] = true, -- Hammer of Justice
+        [ 5211] = true, -- Bash
+        [24394] = true, -- Intimidation
+        [22570] = true, -- Maim
+        [  408] = true, -- Kidney Shot
+        [20549] = true, -- War Stomp
+        [20252] = true, -- Intercept
+        [20253] = true, -- Intercept
+        [44572] = true, -- Deep Freeze
+        [30283] = true, -- Shadowfury
+        [ 2812] = true, -- Holy Wrath
+        [22703] = true, -- Inferno Effect
+        [54785] = true, -- Demon Leap (Warlock)
+        [47481] = true, -- Gnaw (Ghoul)
+        [93433] = true, -- Burrow Attack (Worm)
+        [56626] = true, -- Sting (Wasp)
+        [85388] = true, -- Throwdown
+        [ 1833] = true, -- Cheap Shot
+        [ 9005] = true, -- Pounce
+        [88625] = true, -- Holy Word: Chastise 
+	},
 
 	--[[ ROOTS ]]--
-	[33395] = "ctrlroot", -- Freeze (Water Elemental)
-	[50041] = "ctrlroot", -- Chilblains
-	[50245] = "ctrlroot", -- Pin (Crab)
-	[  122] = "ctrlroot", -- Frost Nova
-	[  339] = "ctrlroot", -- Entangling Roots
-	[19975] = "ctrlroot", -- Nature's Grasp (Uses different spellIDs than Entangling Roots for the same spell)
-	[51485] = "ctrlroot", -- Earth's Grasp
-	[63374] = "ctrlroot", -- Frozen Power
-	[ 4167] = "ctrlroot", -- Web (Spider)
-	[54706] = "ctrlroot", -- Venom Web Spray (Silithid)
-	[19306] = "ctrlroot", -- Counterattack
-	[90327] = "ctrlroot", -- Lock Jaw (Dog)
-	[11190] = "ctrlroot", -- Improved Cone of Cold (rank 1)
-	[12489] = "ctrlroot", -- Improved Cone of Cold (rank 2)
+	root = {
+        [33395] = true, -- Freeze (Water Elemental)
+        [50041] = true, -- Chilblains
+        [50245] = true, -- Pin (Crab)
+        [  122] = true, -- Frost Nova
+        [  339] = true, -- Entangling Roots
+        [19975] = true, -- Nature's Grasp (Uses different spellIDs than Entangling Roots for the same spell)
+        [51485] = true, -- Earth's Grasp
+        [63374] = true, -- Frozen Power
+        [ 4167] = true, -- Web (Spider)
+        [54706] = true, -- Venom Web Spray (Silithid)
+        [19306] = true, -- Counterattack
+        [90327] = true, -- Lock Jaw (Dog)
+        [11190] = true, -- Improved Cone of Cold (rank 1)
+        [12489] = true, -- Improved Cone of Cold (rank 2)
+	},
+    
+    rndroot = {
+    	[23694] = true, -- Improved Hamstring -- FIXME: to check
+        [44745] = true, -- Shattered Barrier (rank 1)
+        [54787] = true, -- Shattered Barrier (rank 2)
+    },
 
-	--[[ RANDOM ROOTS ]]--
-	[23694] = "rndroot", -- Improved Hamstring -- FIXME: to check
-	[44745] = "rndroot", -- Shattered Barrier (rank 1)
-	[54787] = "rndroot", -- Shattered Barrier (rank 2)
+	--[[ KNOCKBACK ]]--
+	knockback = {
+		-- Death Knight
+		[108199] = true, -- Gorefiend's Grasp
+		-- Druid
+		[102793] = true, -- Ursol's Vortex
+		[132469] = true, -- Typhoon
+		-- Hunter
+		-- Shaman
+		[ 51490] = true, -- Thunderstorm
+		-- Warlock
+		[  6360] = true, -- Whiplash
+		[115770] = true, -- Fellash
+	},
+    
+    disarm = {
+        [91644] = true, -- Snatch (Bird of Prey)
+        [51722] = true, -- Dismantle
+        [  676] = true, -- Disarm
+        [64058] = true, -- Psychic Horror (Disarm effect)
+        [50541] = true, -- Clench (Scorpid)
+    }
+} 
 
-	--[[ HORROR ]]--
-	[ 6789] = "horror", -- Death Coil
-	[64044] = "horror", -- Psychic Horror
-
-	--[[ MISC ]]--
-	[19503] = "scatters",      -- Scatter Shot
-	[31661] = "dragons",       -- Dragon's Breath
-	[  605] = "mc",            -- Mind Control
-	[  710] = "banish",        -- Banish
-	[19185] = "entrapment",    -- Entrapment
-	[33786] = "cyclone",       -- Cyclone
-	[76780] = "bindelemental", -- Bind Elemental
-	[  100] = "charge",        -- Charge
-	[20252] = "intercept",     -- Intercept
-}
-
--- DR Category names
 Data.categoryNames = {
-	["banish"] = L["Banish"],
-	["ctrlstun"] = L["Controlled stuns"],
-	["cyclone"] = L["Cyclone"],
-	["disarm"] = L["Disarms"],
-	["disorient"] = L["Disorients"],
-	["entrapment"] = L["Entrapment"],
-	["fear"] = L["Fears"],
-	["horror"] = L["Horrors"],
-	["mc"] = L["Mind Control"],
-	["rndroot"] = L["Random roots"],
-	["rndstun"] = L["Random stuns"],
-	["ctrlroot"] = L["Controlled roots"],
-	["scatters"] = L["Scatter Shot"],
-	["dragons"] = L["Dragon's Breath"],
-	["silence"] = L["Silences"],
-	["taunt"] = L["Taunts"],
-	["bindelemental"] = L["Bind Elemental"],
-	["charge"] = L["Charge"],
-	["intercept"] = L["Intercept"],
+	root           = L["Roots"],
+    rndroot        = "Random Roots",
+	stun           = L["Stuns"],
+    rndstun        = "Random Stuns",
+	disorient      = L["Disorients"],
+	silence        = L["Silences"],
+	taunt          = L["Taunts"],
+	incapacitate   = L["Incapacitates"],
+	knockback      = L["Knockbacks"],
 }
 
--- Categories that have DR in PvE as well as PvP
 Data.pveDR = {
-	["ctrlstun"] = true,
-	["rndstun"] = true,
-	["taunt"] = true,
-	["cyclone"] = true,
+	stun     = true,
+	taunt    = true,
 }
+
+--- List of spellID -> DR category
+Data.spells = {}
+
+--- List of spellID => ProviderID
+Data.providers = {}
+
+-- Dispatch the spells in the final tables
+for category, spells in pairs(spellsAndProvidersByCategory) do
+
+	for spell, provider in pairs(spells) do
+		Data.spells[spell] = category
+		if provider == true then -- "== true" is really needed
+			Data.providers[spell] = spell
+			spells[spell] = spell
+		else
+			Data.providers[spell] = provider
+		end
+	end
+end
+
+-- Warn about deprecated categories
+local function CheckDeprecatedCategory(cat)
+    return
+end
 
 -- Public APIs
 -- Category name in something usable
 function Data:GetCategoryName(cat)
+	CheckDeprecatedCategory(cat)
 	return cat and Data.categoryNames[cat] or nil
 end
 
@@ -237,9 +307,15 @@ function Data:GetSpells()
 	return Data.spells
 end
 
+-- Provider list
+function Data:GetProviders()
+	return Data.providers
+end
+
 -- Seconds before DR resets
-function Data:GetResetTime()
-	return Data.RESET_TIME
+function Data:GetResetTime(category)
+	CheckDeprecatedCategory(cat)
+	return Data.resetTimes[category or "default"] or Data.resetTimes.default
 end
 
 -- Get the category of the spellID
@@ -249,6 +325,7 @@ end
 
 -- Does this category DR in PvE?
 function Data:IsPVE(cat)
+	CheckDeprecatedCategory(cat)
 	return cat and Data.pveDR[cat] or nil
 end
 
@@ -257,15 +334,50 @@ function Data:GetCategories()
 	return Data.categoryNames
 end
 
--- Next DR, if it's 1.0, next is 0.50, if it's 0.[50] = "ctrlroot",next is 0.[25] = "ctrlroot",and such
-function Data:NextDR(diminished)
-	if( diminished == 1 ) then
-		return 0.50
-	elseif( diminished == 0.50 ) then
-		return 0.25
+-- Next DR
+function Data:NextDR(diminished, category)
+	CheckDeprecatedCategory(category)
+	local durations = Data.diminishedDurations[category or "default"] or Data.diminishedDurations.default
+	for i = 1, #durations do
+		if diminished > durations[i] then
+			return durations[i]
+		end
+	end
+	return 0
+end
+
+-- Iterate through the spells of a given category.
+-- Pass "nil" to iterate through all spells.
+do
+	local function categoryIterator(id, category)
+		local newCat
+		repeat
+			id, newCat = next(Data.spells, id)
+			if id and newCat == category then
+				return id, category
+			end
+		until not id
 	end
 
-	return 0
+	function Data:IterateSpells(category)
+		if category then
+			CheckDeprecatedCategory(category)
+			return categoryIterator, category
+		else
+			return next, Data.spells
+		end
+	end
+end
+
+-- Iterate through the spells and providers of a given category.
+-- Pass "nil" to iterate through all spells.
+function Data:IterateProviders(category)
+	if category then
+		CheckDeprecatedCategory(category)
+		return next, spellsAndProvidersByCategory[category] or {}
+	else
+		return next, Data.providers
+	end
 end
 
 --[[ EXAMPLES ]]--
@@ -308,8 +420,8 @@ local function debuffFaded(spellID, destName, destGUID, isEnemy, isPlayer)
 	local time = GetTime()
 	local tracked = trackedPlayers[destGUID][drCat]
 
-	tracked.reset = time + DRData:GetResetTime()
-	tracked.diminished = DRData:NextDR(tracked.diminished)
+	tracked.reset = time + DRData:GetResetTime(drCat)
+	tracked.diminished = DRData:NextDR(tracked.diminished, drCat)
 
 	-- Diminishing returns changed, now you can do an update
 end

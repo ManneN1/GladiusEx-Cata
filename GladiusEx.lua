@@ -12,7 +12,7 @@ local strfind, strmatch = string.find, string.match
 local max, abs, floor, ceil = math.max, math.abs, math.floor, math.ceil
 local UnitIsDeadOrGhost, UnitGUID, UnitExists = UnitIsDeadOrGhost, UnitGUID, UnitExists
 local InCombatLockdown = InCombatLockdown
-local GetNumArenaOpponents, GetNumArenaOpponentSpecs, GetNumGroupMembers = GetNumArenaOpponents, GetNumArenaOpponentSpecs, GetNumGroupMembers
+local GetNumArenaOpponents, GetNumArenaOpponentSpecs, GetNumPartyMembers = GetNumArenaOpponents, GetNumArenaOpponentSpecs, GetNumPartyMembers
 
 local arena_units = {
 	["arena1"] = true,
@@ -483,7 +483,7 @@ function GladiusEx:GetArenaSize(min)
 	-- try to guess the current arena size
 	local guess = max(min or 0, 1, self.seenEnemies, self.knownSpecs, GetNumPartyMembers())
 
-	log("GetArenaSize", min, self.seenEnemies, self.knownSpecs, GetNumGroupMembers(),
+	log("GetArenaSize", min, self.seenEnemies, self.knownSpecs, GetNumPartyMembers(),
 		" => ", guess)
 
 	if guess >= 4 then

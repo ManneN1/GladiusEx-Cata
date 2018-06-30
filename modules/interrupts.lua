@@ -80,6 +80,7 @@ function Interrupt:COMBAT_LOG_EVENT_UNFILTERED(event, ...)
    	if not duration then return end
    	local button = GladiusEx.buttons[unit]
    	if not button then return end
+
    	self:UpdateInterrupt(unit, spellID, duration)
 end
 

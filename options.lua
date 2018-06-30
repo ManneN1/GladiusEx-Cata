@@ -640,34 +640,77 @@ function GladiusEx:SetupOptions()
 						["Troll"] = "Troll",
 						["Worgen"] = "Worgen",
 					},
+                },
+				class = {
+					order = 2,
+					type = "select",
+					name = "Class",
+					desc = "Class of test unit",
+					get = function() return self.db.base.testUnits[unit].unitClass end,
+					set = function(info, value)
+						self.db.base.testUnits[unit].unitClass = value
+						self:UpdateFrames()
+					end,
+					values = {
+						["WARRIOR"] = "Warrior",
+						["DRUID"] = "Druid",
+						["PALADIN"] = "Paladin",
+						["PRIEST"] = "Priest",
+						["WARLOCK"] = "Warlock",
+						["MAGE"] = "Mage",
+						["ROGUE"] = "Rogue",
+						["SHAMAN"] = "Shaman",
+						["DEATHKNIGHT"] = "Death Knight",
+						["HUNTER"] = "Hunter",
+					},                   
 				},
 				spec = {
-					order = 2,
+					order = 3,
 					type = "select",
 					name = L["Spec"],
 					desc = L["Unit talent specialization"],
 					get = function() return self.db.base.testUnits[unit].specID end,
 					set = function(info, value)
 						self.db.base.testUnits[unit].specID = value
-						self.db.base.testUnits[unit].unitClass = select(7, GetSpecializationInfoByID(value))
 						self:UpdateFrames()
 					end,
-					values = function()
-						local t = {}
-						for classID = 1, MAX_CLASSES do
-							local classDisplayName, classTag = GetClassInfoByID(classID)
-							local color = RAID_CLASS_COLORS[classTag]
-							local colorfmt = string.format("|cff%02x%02x%02x", color.r * 255, color.g * 255, color.b * 255)
-							for specNum = 1, GetNumSpecializationsForClassID(classID) do
-								local specID, name, description, icon, background, role = GetSpecializationInfoForClassID(classID, specNum)
-								t[specID] = string.format("%s%s/%s", colorfmt, classDisplayName, name)
-							end
-						end
-						return t
-					end
+					values = {
+                        [250] = "Blood",         
+                        [251] = "Frost",         
+                        [252] = "Unholy",        
+                        [577] = "Havoc",         
+                        [581] = "Vengeance",    
+                        [102] = "Balance",      
+                        [103] = "Feral",         
+                        [105] = "Restoration",   
+                        [253] = "Beast Mastery", 
+                        [254] = "Marksmanship",  
+                        [255] = "Survival",      
+                        [62]  = "Arcane",        
+                        [63]  = "Fire",          
+                        [64]  = "Frost",         
+                        [65]  = "Holy",          
+                        [66]  = "Protection",    
+                        [70]  = "Retribution",   
+                        [256] = "Discipline",   
+                        [257] = "Holy",         
+                        [258] = "Shadow",       
+                        [259] = "Assassination",
+                        [260] = "Combat",       
+                        [261] = "Subtlety",     
+                        [262] = "Elemental",    
+                        [263] = "Enhancement", 
+                        [264] = "Restoration",  
+                        [265] = "Affliction",  
+                        [266] = "Demonology", 
+                        [267] = "Destruction", 
+                        [71]  = "Arms",         
+                        [72]  = "Fury",    
+                        [73]  = "Protection"    
+                    }
 				},
 				powerType = {
-					order = 3,
+					order = 4,
 					type = "select",
 					name = L["Power type"],
 					desc = L["Unit power type"],
