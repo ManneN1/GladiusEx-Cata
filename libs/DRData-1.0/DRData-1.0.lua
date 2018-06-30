@@ -47,8 +47,9 @@ if GetLocale() == "frFR" then
 end
 
 -- How long before DR resets
--- While everyone will tell you it's 15 seconds, it's actually 16 - 20 seconds with 18 being a decent enough average
-Data.RESET_TIME = 18
+-- While everyone will tell you it's 15 seconds, it's actually between 16-20 depending on luck (changes with each DR)
+-- With this setting keep in mind that it's probable you will be able to re-crowd control slightly before the timer runs out (for ex. 1 second left).
+Data.RESET_TIME = 20
 
 -- List of spellID -> DR category
 Data.spells = {
