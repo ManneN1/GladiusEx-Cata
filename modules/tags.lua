@@ -1009,7 +1009,6 @@ function Tags:GetBuiltinTags()
 			if not specID or specID == 0 then
 				return ""
 			end
-            print("THIS IS SPEC ID: "..tostring(specID).." for unit "..unit)
 			return specIDToName[tostring(specID)]
 		end,
 		["spec:short"] = function(unit)

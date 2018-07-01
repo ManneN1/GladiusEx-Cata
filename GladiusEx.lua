@@ -690,6 +690,8 @@ function GladiusEx:PLAYER_ENTERING_WORLD()
 	end
 end
 
+--/script GladiusEx:CHAT_MSG_BG_SYSTEM_NEUTRAL(nil, "The Arena battle has begun!")
+
 -- write tracking mechanism for arena started / new player joined
 -- on arena started search for class / spec for all opponents
 -- on new enemy joined search for class / spec for highest id opponent

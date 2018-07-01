@@ -71,11 +71,11 @@ function PowerBar:GetModuleAttachFrame(unit)
 	return self.frame[unit]
 end
 
-function PowerBar:UpdateColorEvent(event, unit)
-	self:UpdateColor(unit)
+function PowerBar:UpdateColorEvent(event, unit, skipPower)
+	self:UpdateColor(unit, skipPower)
 end
 
-function PowerBar:UpdateColor(unit)
+function PowerBar:UpdateColor(unit, skipPower)
 	if not self.frame[unit] then return end
 
 	-- get unit powerType
@@ -96,12 +96,19 @@ function PowerBar:UpdateColor(unit)
 	self.frame[unit]:SetStatusBarColor(color.r, color.g, color.b, color.a or 1)
 
 	-- update power
-	self:UpdatePowerEvent("UpdateColor", unit)
+    if not skipPower then
+        self:UpdatePowerEvent("UpdateColor", unit)
+    end
 end
 
 function PowerBar:UpdatePowerEvent(event, unit)
 	local power, maxPower = UnitPower(unit), UnitPowerMax(unit)
 	self:UpdatePower(unit, power, maxPower)
+    
+    local color = self:GetBarColor(powerType)
+    if color ~= self:GetBarColor(UnitPowerType(unit)) then
+        self:UpdateColorEvent(event, unit, true)
+    end
 end
 
 function PowerBar:UpdatePower(unit, power, maxPower)

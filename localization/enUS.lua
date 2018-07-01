@@ -95,11 +95,13 @@ L["PowerBar"] = "Power Bar"
 L["TargetBar"] = "Target"
 L["PetBar"] = "Pet"
 L["SkillHistory"] = "Skill History"
+L["Interrupts"] = true
 
 -- General
 
 L["The Arena battle has begun!"] = true
 
+-- General
 L["Highlight player target"] = true
 L["Show border around your target"] = true
 
@@ -229,6 +231,9 @@ L["Copy all settings from arena to party"] = true
 L["Copy all settings from party to arena"] = true
 L["Copy from arena"] = true
 L["Copy from party"] = true
+L["Copy cooldown spells from the party with the same cooldown group name"] = true
+L["Copy cooldown spells from the arena with the same cooldown group name"] = true
+L["No matching group"] = true
 L["Copy settings"] = true
 L["Crop borders"] = true
 L["ctrl-"] = true
@@ -486,6 +491,8 @@ L["Show incoming heals"] = true
 L["Show only dispellable"] = true
 L["Show only mine"] = true
 L["Show party frames"] = true
+L["Show arena frames"] = true
+L["Toggle to show your arena frames"] = true
 L["Show spark"] = true
 L["Show tooltips"] = true
 L["Show total time"] = true
@@ -547,6 +554,9 @@ L["Timeout"] = true
 L["Timeout, in seconds"] = true
 L["Toggle alerts when some auras are active"] = true
 L["Toggle alerts when some spells are being cast"] = true
+L["Hide cast alerts on self"] = true
+L["Group name"] = true
+L["Hide cast alerts on your own frame when you are casting alert-worthy spells"] = true
 L["Toggle aura buffs"] = true
 L["Toggle aura debuffs"] = true
 L["Toggle cast text"] = true
@@ -619,3 +629,5 @@ L["Y offset of the cast text"] = true
 L["Y offset of the cast time text"] = true
 L["Y offset of the frame"] = true
 L["Y offset"] = true
+L["Hide self frame"] = true
+L["Hide the player's frame"] = true
