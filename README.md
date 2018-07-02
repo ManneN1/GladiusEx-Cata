@@ -12,6 +12,8 @@ The "Incoming" Absorb/Heal portion of the healthbar module has been removed as t
 
 At this time the interrupt module does not work.
 
+Additionally, there are no default tracked auras in the classicon module.
+
 ### Disclaimer
 
 The backport has not been widely tested and may contain serious bugs, if you choose to use the AddOn and find any such bugs please report them to me by creating an "issue" in https://github.com/ManneN1/GladiusExBackport-Cata/issues/new.
