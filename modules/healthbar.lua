@@ -92,7 +92,7 @@ function HealthBar:UpdateColor(unit)
 
 	-- set color
 	local color
-	if self.db[unit].healthBarClassColor then
+	if class and self.db[unit].healthBarClassColor and if self.frame[unit].seen then
 		color = self:GetBarColor(class)
 	else
 		color = self.db[unit].healthBarColor
@@ -103,18 +103,40 @@ end
 function HealthBar:UpdateHealth(unit, health, maxHealth)
 	if not self.frame[unit] then return end
 
+    if health > 0 or maxHealth > 0 then
+        self.frame[unit].freeze = false
+        self.frame[unit].seen = true
+    else
+        self.frame[unit].freeze = true
+    end
+    
 	self.frame[unit].health = health
 	self.frame[unit].maxHealth = maxHealth
+    
 
 	-- update min max values
-	self.frame[unit]:SetMinMaxValues(0, maxHealth)
+    
+    if self.frame[unit].freeze and maxHealth == 0 then
+	
+    end
 
-	-- inverse bar
-	if self.db[unit].healthBarInverse then
-		self.frame[unit]:SetValue(maxHealth - health)
-	else
-		self.frame[unit]:SetValue(health)
-	end
+    if self.frame[unit].seen == nil then 
+        self.frame[unit]:SetMinMaxValues(0, 100)
+        if self.db[unit].healthBarInverse then
+            self.frame[unit]:SetValue(0)
+        else
+            self.frame[unit]:SetValue(100)
+        end
+    
+    elseif not self.frame[unit].freeze then
+        self.frame[unit]:SetMinMaxValues(0, maxHealth)
+        -- inverse bar
+        if self.db[unit].healthBarInverse then
+            self.frame[unit]:SetValue(maxHealth - health)
+        else
+            self.frame[unit]:SetValue(health)
+        end
+    end
 end
 
 --function HealthBar:SetIncomingBarAmount(unit, bar, incamount, inccap)

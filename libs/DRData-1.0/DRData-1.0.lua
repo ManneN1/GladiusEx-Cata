@@ -27,12 +27,9 @@ local L = {
 	["Intercept"] = "Intercept",
 }
 
--- How long before DR resets ?
+-- How long before DR resets (16-20)
 Data.resetTimes = {
-	-- As of 6.1, this is always 18 seconds, and no longer has a range between 15 and 20 seconds.
 	default   = 20,
-	-- Knockbacks are a special case
-	knockback = 20,
 }
 Data.RESET_TIME = Data.resetTimes.default
 
@@ -42,8 +39,6 @@ Data.diminishedDurations = {
 	default   = { 0.50, 0.25 },
 	-- Decreases by 35%, immune at the 5th application
 	taunt     = { 0.65, 0.42, 0.27 },
-	-- Immediately immune
-	knockback = {},
 }
 
 -- Spells and providers by categories
@@ -65,7 +60,7 @@ local spellsAndProvidersByCategory = {
     scatter = {
     	[19503] = true      -- Scatter Shot
     },
-    dragons = {
+    dragon = {
         [31661] = true       -- Dragon's Breath
     },
     mc = {
@@ -135,7 +130,7 @@ local spellsAndProvidersByCategory = {
 	},
     
     --[[ FEAR ]]--
-    fear = {
+    disorient = {
     	[ 2094] = true, -- Blind
         [ 5782] = true, -- Fear (Warlock)
         [ 6358] = true, -- Seduction (Succubus)
@@ -228,21 +223,6 @@ local spellsAndProvidersByCategory = {
         [44745] = true, -- Shattered Barrier (rank 1)
         [54787] = true, -- Shattered Barrier (rank 2)
     },
-
-	--[[ KNOCKBACK ]]--
-	knockback = {
-		-- Death Knight
-		[108199] = true, -- Gorefiend's Grasp
-		-- Druid
-		[102793] = true, -- Ursol's Vortex
-		[132469] = true, -- Typhoon
-		-- Hunter
-		-- Shaman
-		[ 51490] = true, -- Thunderstorm
-		-- Warlock
-		[  6360] = true, -- Whiplash
-		[115770] = true, -- Fellash
-	},
     
     disarm = {
         [91644] = true, -- Snatch (Bird of Prey)
@@ -257,12 +237,21 @@ Data.categoryNames = {
 	root           = L["Roots"],
     rndroot        = "Random Roots",
 	stun           = L["Stuns"],
+    disorient      = L["Disorients"],
     rndstun        = "Random Stuns",
-	disorient      = L["Disorients"],
 	silence        = L["Silences"],
 	taunt          = L["Taunts"],
 	incapacitate   = L["Incapacitates"],
-	knockback      = L["Knockbacks"],
+    horror         = "Horrors",
+    intercept      = "Intercept",
+    charge         = "Charge",
+    bindele        = "Bind Elemental",
+    cyclone        = "Cyclone",
+    entrapment     = "Entrapments",
+    banish         = "Banish",
+    mc             = "Mind Control",
+    dragon         = "Dragon's Breath",
+    scatter        = "Scatter Shot"
 }
 
 Data.pveDR = {
@@ -290,15 +279,9 @@ for category, spells in pairs(spellsAndProvidersByCategory) do
 	end
 end
 
--- Warn about deprecated categories
-local function CheckDeprecatedCategory(cat)
-    return
-end
-
 -- Public APIs
 -- Category name in something usable
 function Data:GetCategoryName(cat)
-	CheckDeprecatedCategory(cat)
 	return cat and Data.categoryNames[cat] or nil
 end
 
@@ -314,7 +297,6 @@ end
 
 -- Seconds before DR resets
 function Data:GetResetTime(category)
-	CheckDeprecatedCategory(cat)
 	return Data.resetTimes[category or "default"] or Data.resetTimes.default
 end
 
@@ -336,7 +318,6 @@ end
 
 -- Next DR
 function Data:NextDR(diminished, category)
-	CheckDeprecatedCategory(category)
 	local durations = Data.diminishedDurations[category or "default"] or Data.diminishedDurations.default
 	for i = 1, #durations do
 		if diminished > durations[i] then
@@ -373,7 +354,6 @@ end
 -- Pass "nil" to iterate through all spells.
 function Data:IterateProviders(category)
 	if category then
-		CheckDeprecatedCategory(category)
 		return next, spellsAndProvidersByCategory[category] or {}
 	else
 		return next, Data.providers

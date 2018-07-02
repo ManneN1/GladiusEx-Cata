@@ -2,6 +2,7 @@ local GladiusEx = _G.GladiusEx
 local L = LibStub("AceLocale-3.0"):GetLocale("GladiusEx")
 local fn = LibStub("LibFunctional-1.0")
 local LSM = LibStub("LibSharedMedia-3.0")
+local AT = LibStub("AceTimer-3.0")
 
 -- upvalues
 local strfind = string.find
@@ -235,6 +236,7 @@ function ClassIcon:OnEnable()
 	self:RegisterEvent("UNIT_PORTRAIT_UPDATE", "UNIT_AURA")
 	self:RegisterEvent("UNIT_MODEL_CHANGED")
 	self:RegisterMessage("GLADIUSEX_SPEC_UPDATE", "UNIT_AURA")
+    self:RegisterMessage("INTERRUPT_UPDATE", "UNIT_AURA")
 
 	if not self.frame then
 		self.frame = {}
@@ -246,8 +248,13 @@ function ClassIcon:OnDisable()
 	self:UnregisterAllMessages()
 
 	for unit in pairs(self.frame) do
+        self.frame[unit].priority = nil
+        self.frame[unit].expires = nil
 		self.frame[unit]:Hide()
 	end
+    if AT then
+        AT:CancelAllTimers()
+    end
 end
 
 function ClassIcon:GetAttachType(unit)
@@ -276,14 +283,26 @@ function ClassIcon:GetModuleAttachFrame(unit)
 	return self.frame[unit]
 end
 
-function ClassIcon:UNIT_AURA(event, unit)
+function ClassIcon:UNIT_AURA(event, unit, iname, iicon, iduration, ipriority)
 	if not self.frame[unit] then return end
 
-	-- important auras
-	self:UpdateAura(unit)
+    if ipriority and self.frame[unit].bestprio and (ipriority > self.frame[unit].priority or self.frame[unit].expires < GetTime()) then
+        self.frame[unit].bestprio = ipriority
+        self.frame[unit].expires = iexpires
+        self:SetAura(unit, iname, iicon, iduration, iexpires)
+        if AT then
+            self.frame[unit].timer = AT:ScheduleTimer(ClassIcon.UNIT_AURA, iduration + 0.05, unit)
+        end
+        
+    else
+        -- important auras
+        self:UpdateAura(unit, iname, iicon, iduration, ipriority)
+    end
+    
+
 end
 
-function ClassIcon:UNIT_MODEL_CHANGED(event, unit)
+function ClassIcon:UNIT_MODEL_CHANGED(event,unit)
 	if not self.frame[unit] then return end
 
 	-- force model update
@@ -308,18 +327,16 @@ function ClassIcon:ScanAuras(unit)
 	local best_priority = 0
 	local best_name, best_icon, best_duration, best_expires
 
-	local interrupt = {Interrupt:GetInterruptFor(unit)}
-	if interrupt[1] then
-		return unpack(interrupt) 
-	end
+    
 
 
 	-- debuffs
 	for index = 1, 40 do
 		local name, _, icon, _, _, duration, expires, _, _ = UnitDebuff(unit, index)
 		if not name then break end
-		local isBestPrio = self:handle_aura(unit, name, best_priority)
+		local isBestPrio, prio = self:handle_aura(unit, name, best_priority)
         if isBestPrio then
+            best_priority = prio
             best_name = name
             best_icon = icon
             best_duration = duration
@@ -331,8 +348,9 @@ function ClassIcon:ScanAuras(unit)
 	for index = 1, 40 do
 		local name, _, icon, _, _, duration, expires, _, _ = UnitBuff(unit, index)
 		if not name then break end
-		local isBestPrio = self:handle_aura(unit, name, best_priority)
+		local isBestPrio, prio = self:handle_aura(unit, name, best_priority)
         if isBestPrio then
+            best_priority = prio
             best_name = name
             best_icon = icon
             best_duration = duration
@@ -340,15 +358,26 @@ function ClassIcon:ScanAuras(unit)
         end
 	end
 
-	return best_name, best_icon, best_duration, best_expires
+	return best_name, best_icon, best_duration, best_expires, best_priority
 end
 
-function ClassIcon:UpdateAura(unit)
+function ClassIcon:UpdateAura(unit, iname, iicon, iduration, ipriority)
 	if not self.frame[unit] or not self.db[unit].classIconImportantAuras then return end
 
-	local name, icon, duration, expires = self:ScanAuras(unit)
+	local name, icon, duration, expires, priority = self:ScanAuras(unit)
 
+    if ipriority and ipriority > priority then
+        name = iname
+        icon = iicon
+        duration = iduration
+        expires = iexpires
+        priority = ipriority
+    end
+    
 	if name then
+        self.frame[unit].bestprio = priority
+        self.frame[unit].expires = expires
+    
 		self:SetAura(unit, name, icon, duration, expires)
 	else
 		self:SetClassIcon(unit)
@@ -563,6 +592,11 @@ function ClassIcon:Reset(unit)
 	if not self.frame[unit] then return end
 
 	-- hide
+    self.frame[unit].priority = nil
+    self.frame[unit].expires = nil
+    if AT and self.frame[unit].timer then
+        AT:CancelTimer(self.frame[unit].timer)
+    end
 	self.frame[unit]:Hide()
 end
 

@@ -4,7 +4,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("GladiusEx")
 function GladiusEx:GetSpecList()
 	return {      
 		-- WARRIOR
-		[GladiusEx:SafeGetSpellName(12294)]	= "Arms",			   -- Mortal Strike
+		[GladiusEx:SafeGetSpellName(12294)]	= {"Arms", "WARRIOR"},			   -- Mortal Strike
 		[GladiusEx:SafeGetSpellName(46924)]	= "Arms",			   -- Bladestorm
 		[GladiusEx:SafeGetSpellName(56638)]	= "Arms",			   -- Taste for Blood
 		[GladiusEx:SafeGetSpellName(64976)]	= "Arms",			   -- Juggernaut

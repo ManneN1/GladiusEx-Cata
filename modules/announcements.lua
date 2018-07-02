@@ -144,7 +144,7 @@ function Announcements:Send(msg, throttle, unit)
 	end
 
 	-- party chat
-	if (dest == "party") and (GetNumGroupMembers() > 0) then
+	if (dest == "party") and (GetNumPartyMembers() > 0) then
 		SendChatMessage(msg, "PARTY")
 
 	-- say
