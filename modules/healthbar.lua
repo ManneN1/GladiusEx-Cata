@@ -92,7 +92,7 @@ function HealthBar:UpdateColor(unit)
 
 	-- set color
 	local color
-	if class and self.db[unit].healthBarClassColor and if self.frame[unit].seen then
+	if class and self.db[unit].healthBarClassColor and self.frame[unit].seen then
 		color = self:GetBarColor(class)
 	else
 		color = self.db[unit].healthBarColor

@@ -2,7 +2,6 @@ local GladiusEx = _G.GladiusEx
 local L = LibStub("AceLocale-3.0"):GetLocale("GladiusEx")
 local fn = LibStub("LibFunctional-1.0")
 local LSM = LibStub("LibSharedMedia-3.0")
-local AT = LibStub("AceTimer-3.0")
 
 -- upvalues
 local strfind = string.find
@@ -223,7 +222,7 @@ local defaults = {
 	classIconAuras = GetDefaultImportantAuras()
 }
 
-local ClassIcon = GladiusEx:NewGladiusExModule("ClassIcon",
+ClassIcon = GladiusEx:NewGladiusExModule("ClassIcon",
 	fn.merge(defaults, {
 		classIconPosition = "LEFT",
 	}),
@@ -236,7 +235,7 @@ function ClassIcon:OnEnable()
 	self:RegisterEvent("UNIT_PORTRAIT_UPDATE", "UNIT_AURA")
 	self:RegisterEvent("UNIT_MODEL_CHANGED")
 	self:RegisterMessage("GLADIUSEX_SPEC_UPDATE", "UNIT_AURA")
-    self:RegisterMessage("INTERRUPT_UPDATE", "UNIT_AURA")
+    self:RegisterMessage("GLADIUSEX_INTERRUPT_UPDATE", "UNIT_AURA")
 
 	if not self.frame then
 		self.frame = {}
@@ -252,9 +251,7 @@ function ClassIcon:OnDisable()
         self.frame[unit].expires = nil
 		self.frame[unit]:Hide()
 	end
-    if AT then
-        AT:CancelAllTimers()
-    end
+
 end
 
 function ClassIcon:GetAttachType(unit)
@@ -283,20 +280,18 @@ function ClassIcon:GetModuleAttachFrame(unit)
 	return self.frame[unit]
 end
 
-function ClassIcon:UNIT_AURA(event, unit, iname, iicon, iduration, ipriority)
-	if not self.frame[unit] then return end
+-- /script ClassIcon:UNIT_AURA(nil, "arena1", "Kick", nil, 5, GetTime(), 7)
 
-    if ipriority and self.frame[unit].bestprio and (ipriority > self.frame[unit].priority or self.frame[unit].expires < GetTime()) then
-        self.frame[unit].bestprio = ipriority
+function ClassIcon:UNIT_AURA(event, unit, iname, iicon, iduration, iexpires, ipriority)
+	if not self.frame[unit] or not self.frame[unit]:IsShown() then  return end
+
+    if ipriority and self.frame[unit].priority and (ipriority > self.frame[unit].priority or self.frame[unit].expires < GetTime()) then
+        self.frame[unit].priority = ipriority
         self.frame[unit].expires = iexpires
-        self:SetAura(unit, iname, iicon, iduration, iexpires)
-        if AT then
-            self.frame[unit].timer = AT:ScheduleTimer(ClassIcon.UNIT_AURA, iduration + 0.05, unit)
-        end
-        
+        self:SetAura(unit, iname, iicon, iduration, iexpires, iexpires)
     else
         -- important auras
-        self:UpdateAura(unit, iname, iicon, iduration, ipriority)
+        self:UpdateAura(unit, iname, iicon, iduration, iexpires, ipriority)
     end
     
 
@@ -326,9 +321,6 @@ end
 function ClassIcon:ScanAuras(unit)
 	local best_priority = 0
 	local best_name, best_icon, best_duration, best_expires
-
-    
-
 
 	-- debuffs
 	for index = 1, 40 do
@@ -361,7 +353,7 @@ function ClassIcon:ScanAuras(unit)
 	return best_name, best_icon, best_duration, best_expires, best_priority
 end
 
-function ClassIcon:UpdateAura(unit, iname, iicon, iduration, ipriority)
+function ClassIcon:UpdateAura(unit, iname, iicon, iduration, iexpires, ipriority)
 	if not self.frame[unit] or not self.db[unit].classIconImportantAuras then return end
 
 	local name, icon, duration, expires, priority = self:ScanAuras(unit)
@@ -375,7 +367,7 @@ function ClassIcon:UpdateAura(unit, iname, iicon, iduration, ipriority)
     end
     
 	if name then
-        self.frame[unit].bestprio = priority
+        self.frame[unit].priority = priority
         self.frame[unit].expires = expires
     
 		self:SetAura(unit, name, icon, duration, expires)
@@ -594,10 +586,7 @@ function ClassIcon:Reset(unit)
 	-- hide
     self.frame[unit].priority = nil
     self.frame[unit].expires = nil
-    if AT and self.frame[unit].timer then
-        AT:CancelTimer(self.frame[unit].timer)
-    end
-	self.frame[unit]:Hide()
+	self.frame[unit]:Hide() 
 end
 
 function ClassIcon:Test(unit)

@@ -27,14 +27,18 @@ local function GetDefaultInterruptData()
 end
 
 local defaults = {
-	interruptdata = GetDefaultInterruptData()
+	interruptData = GetDefaultInterruptData()
 }
 
 local Interrupt = GladiusEx:NewGladiusExModule("Interrupt", defaults, defaults)
 
 
 function Interrupt:OnEnable()
-	self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD")
+    
+    if not self.frame then
+		self.frame = {}
+	end
 end
 
 function Interrupt:OnDisable()
@@ -44,29 +48,55 @@ function Interrupt:OnDisable()
 	end
 end
 
+function Interrupt:PLAYER_ENTERING_WORLD()
+    local arena = select(2, IsInInstance())
+    
+    if arena then
+        self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+    else
+        self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+    end
+
+end
+
 function Interrupt:COMBAT_LOG_EVENT_UNFILTERED(event, ...)
 	local subEvent = select(2, ...)
 	local destGUID = select(8, ...)
-	local spellID = select(12, ...)
-
-	local unit = GladiusEx:GetUnitIdByGUID(destGUID)
-	if not unit then return end
+	local name = select(13, ...)
+    local spellid = select(12, ...)
 
 	if subEvent ~= "SPELL_CAST_SUCCESS" and subEvent ~= "SPELL_INTERRUPT" then
-		return
+        return
 	end
+    
+    local unit = GladiusEx:GetUnitIdByGUID(destGUID)
+	if not unit then return end
+    
 	-- it is necessary to check ~= false, as if the unit isn't casting a channeled spell, it will be nil
 	if subEvent == "SPELL_CAST_SUCCESS" and select(8, UnitChannelInfo(unit)) ~= false then
 		-- not interruptible
 		return
 	end
 
-   	local duration = INTERRUPTS[spellID]
-   	if not duration then return end
-   	local button = GladiusEx.buttons[unit]
-   	if not button then return end
-    
-    self:SendMessage("INTERRUPT_UPDATE", unit, name, icon, duration, priority)
+    local data = self.db[unit].interruptData[name]
+    if data then
+        local duration = data[1]
+        if not duration then return end
+        local priority = data[2]
+        if not priority then return end
+        local button = GladiusEx.buttons[unit]
+        if not button then return end
+        
+        local _,_,icon = GetSpellInfo(spellid)
+     
+        self:InterruptUpdate(unit, name, icon, duration, GetTime()+duration, priority)
+        GladiusEx:ScheduleTimer(self.InterruptUpdate, duration+0.1, self, unit)
+
+    end
+end
+
+function Interrupt:InterruptUpdate(unit, name, icon, duration, expires, priority)
+    Interrupt:SendMessage("GLADIUSEX_INTERRUPT_UPDATE", unit, name, icon, duration, expires, priority)
 end
 
 function Interrupt:GetOptions(unit)

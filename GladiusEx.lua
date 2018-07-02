@@ -1,4 +1,4 @@
-﻿GladiusEx = LibStub("AceAddon-3.0"):NewAddon("GladiusEx", "AceEvent-3.0")
+﻿GladiusEx = LibStub("AceAddon-3.0"):NewAddon("GladiusEx", "AceEvent-3.0", "AceTimer-3.0")
 
 local fn = LibStub("LibFunctional-1.0")
 --local LSR = LibStub("LibSpecRoster-1.0")
@@ -574,7 +574,8 @@ function GladiusEx:UpdateFrames()
 
 	self:UpdatePartyFrames()
 	self:UpdateArenaFrames()
-
+    self:UpdateAllGUIDs()
+    print("Updated all GUIDs")
 	if not InCombatLockdown() then
 		self:ClearUpdateQueue()
 	end
@@ -713,6 +714,8 @@ function GladiusEx:CHAT_MSG_BG_SYSTEM_NEUTRAL(event, msg)
         -- set self.arena_size properly and update all frames
         self:CheckArenaSize()
         
+        self:UpdateAllGUIDs()
+        print("Updated all GUIDs 2")
         -- start looking for updates on top-center text for new players joined
         hooksecurefunc("WorldStateAlwaysUpFrame_Update", self.CheckNumPlayers)
     end
@@ -727,8 +730,8 @@ function GladiusEx:ARENA_OPPONENT_UPDATE(event, unit, type)
 		self:ShowUnit(unit)
 		self:UpdateUnitState(unit, false)
 		self:CheckArenaSize(unit)
-	elseif type == "destroyed" then
-		self:UpdateUnitState(unit, not UnitExists(unit))
+	elseif type == "destroyed" or type == "unseen" then
+		self:UpdateUnitState(unit, true)
 	elseif type == "cleared" then
 		if not self:IsTesting() then
 			self:SoftHideUnit(unit)
@@ -864,7 +867,7 @@ function GladiusEx:UNIT_NAME_UPDATE(event, unit)
 	self:RefreshUnit(unit)
 end
 
-local guid_to_unitid = {}
+guid_to_unitid = {}
 
 function GladiusEx:GetUnitIdByGUID(guid)
 	return guid_to_unitid[guid]
