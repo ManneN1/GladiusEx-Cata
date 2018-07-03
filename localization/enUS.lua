@@ -99,7 +99,8 @@ L["SkillHistory"] = "Skill History"
 L["Interrupts"] = true
 
 L["The Arena battle has begun!"] = "The Arena battle has begun!"
-
+L["Show arena frames"] = true
+L["Toggle to show your arena frames"] = true
 
 L["Hide self frame"] = true
 L["Hide the player's frame"] = true 

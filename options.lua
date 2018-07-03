@@ -12,6 +12,7 @@ GladiusEx.defaults = {
 		globalFontShadowColor = { r = 0, g = 0, b = 0, a = 0 },
 		globalBarTexture = GladiusEx.default_bar_texture,
 		showParty = true,
+        showArena = true,
         hideSelf = false,
 		superFS = true,
 		testUnits = {
@@ -426,6 +427,14 @@ function GladiusEx:MakeGroupOptions(group, unit, order)
 	return options
 end
 
+function GladiusEx:RefreshFrames()
+    -- todo: this shouldn't be so.. awkward
+    if self:IsPartyShown() or self:IsArenaShown() then
+        self:HideFrames()
+        self:ShowFrames()
+    end
+end
+
 function GladiusEx:SetupOptions()
 	local function getOption(info)
 		return (info.arg and GladiusEx.db.base[info.arg] or GladiusEx.db.base[info[#info]])
@@ -469,12 +478,19 @@ function GladiusEx:SetupOptions()
 								set = function(info, value)
 									setOption(info, value)
 									-- todo: this shouldn't be so.. awkward
-									if GladiusEx:IsArenaShown() then
-										GladiusEx:HideFrames()
-										GladiusEx:ShowFrames()
-									end
+                                    GladiusEx:RefreshFrames()
 								end,
 								order = 11,
+							},
+							showArena = {
+								type = "toggle",
+								name = L["Show arena frames"],
+								desc = L["Toggle to show your arena frames"],
+								set = function(info, value)
+									setOption(info, value)
+									GladiusEx:RefreshFrames()
+								end,
+								order = 12,
 							},
                             hideSelf = {
 								type = "toggle",
@@ -482,12 +498,9 @@ function GladiusEx:SetupOptions()
 								desc = L["Hide the player's frame"],
 								set = function(info, value)
 									setOption(info, value)
-                                    if GladiusEx:IsArenaShown() then
-										GladiusEx:HideFrames()
-										GladiusEx:ShowFrames()
-									end
+                                    GladiusEx:RefreshFrames()
 								end,
-								order = 12,
+								order = 13,
 							},
 							advancedOptions = {
 								type = "toggle",
