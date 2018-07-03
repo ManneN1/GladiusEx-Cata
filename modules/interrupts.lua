@@ -3,7 +3,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("GladiusEx")
 local fn = LibStub("LibFunctional-1.0")
 
 -- V: heavily inspired by Jaxington's Gladius-With-Interrupts
--- (and then heavily improved by Konjunktur.)
+-- K: (and then heavily improved by Konjunktur)
 
 local function GetDefaultInterruptData()
     return {
@@ -75,9 +75,9 @@ function Interrupt:COMBAT_LOG_EVENT_UNFILTERED(event, ...)
 
     local data = self.db[unit].ClassIconInterrupts[name]
     if data then
-        local duration = data[1]
+        local duration = data.duration
         if not duration then return end
-        local priority = data[2]
+        local priority = data.priority
         if not priority then return end
         local button = GladiusEx.buttons[unit]
         if not button then return end

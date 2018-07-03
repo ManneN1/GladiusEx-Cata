@@ -368,7 +368,6 @@ function Data:GetNumSpellsInCategory(category)
         for k,v in pairs(spellsAndProvidersByCategory[category]) do
             r = r + 1
         end
-        print(r)
         return r
 	end
     return nil
