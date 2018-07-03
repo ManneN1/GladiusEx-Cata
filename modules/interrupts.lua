@@ -175,7 +175,6 @@ function Interrupt:GetOptions(unit)
 
 	-- setup interrupts
 	for interrupt, data in pairs(self.db[unit].classIconInterrupts) do
-        print(interrupt)
 		options.interruptList.args[interrupt] = self:SetupInterruptOptions(options, unit, interrupt)
 	end
 

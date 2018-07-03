@@ -360,6 +360,20 @@ function Data:IterateProviders(category)
 	end
 end
 
+-- Get the number of spells in a given category
+-- Pass "nil" to iterate through all spells.
+function Data:GetNumSpellsInCategory(category)
+	if category and spellsAndProvidersByCategory[category] then
+        local r = 0
+        for k,v in pairs(spellsAndProvidersByCategory[category]) do
+            r = r + 1
+        end
+        print(r)
+        return r
+	end
+    return nil
+end
+
 --[[ EXAMPLES ]]--
 -- This is how you would track DR easily, you're welcome to do whatever you want with the below functions
 
