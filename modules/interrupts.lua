@@ -7,27 +7,22 @@ local fn = LibStub("LibFunctional-1.0")
 
 local function GetDefaultInterruptData()
     return {
-        ["Pummel"] = {4, 7},   -- [Warrior] Pummel
-        ["Rebuke"] = {4, 7},  -- [Paladin] Rebuke
-        ["Avenger's Shield"] = {3, 7}, -- [Paladin] Avengers Shield
---        [147362] = {3, 7}, -- [Hunter] Countershot
-        ["Kick"] = {5, 7},   -- [Rogue] Kick
-        ["Mind Freeze"] = {3, 7},  -- [DK] Mind Freeze
-        ["Wind Shear"] = {3, 7},  -- [Shaman] Wind Shear
-        --[115781] = {6, 7}, -- [Warlock] Optical Blast
-        ["Spell Lock"] = {6, 7},  -- [Warlock] Spell Lock
-        --[212619] = {6, 7}, -- [Warlock] Call Felhunter
-        --[132409] = {6, 7}, -- [Warlock] Spell Lock
-        --[171138] = {6, 7}, -- [Warlock] Shadow Lock
-        ["Counterspell"] = {6, 7},   -- [Mage] Counterspell
-        ["Skull Bash(Cat Form)"] = {4, 7}, -- [Feral] Skull Bash
-        ["Skull Bash(Bear Form)"] = {4, 7},  -- [Feral] Skull Bash
-        ["Solar Beam"] = {5, 7},  -- [Moonkin] Solar Beam
+        ["Pummel"] = {duration = 4, priority = 7},   -- [Warrior] Pummel
+        ["Rebuke"] = {duration = 4, priority = 7},  -- [Paladin] Rebuke
+        ["Avenger's Shield"] = {duration = 3, priority = 7}, -- [Paladin] Avengers Shield
+        ["Kick"] = {duration = 5, priority = 7},   -- [Rogue] Kick
+        ["Mind Freeze"] = {duration = 3, priority = 7},  -- [DK] Mind Freeze
+        ["Wind Shear"] = {duration = 3, priority = 7},  -- [Shaman] Wind Shear
+        ["Spell Lock"] = {duration = 6, priority = 7},  -- [Warlock] Spell Lock
+        ["Counterspell"] = {duration = 6, priority = 7},   -- [Mage] Counterspell
+        ["Skull Bash(Cat Form)"] = {duration = 4, priority = 7}, -- [Feral] Skull Bash
+        ["Skull Bash(Bear Form)"] = {duration = 4, priority = 7},  -- [Feral] Skull Bash
+        ["Solar Beam"] = {duration = 5, priority = 7},  -- [Moonkin] Solar Beam
     }
 end
 
 local defaults = {
-	interruptData = GetDefaultInterruptData()
+	classIconInterrupts = GetDefaultInterruptData()
 }
 
 local Interrupt = GladiusEx:NewGladiusExModule("Interrupt", defaults, defaults)
@@ -78,7 +73,7 @@ function Interrupt:COMBAT_LOG_EVENT_UNFILTERED(event, ...)
 		return
 	end
 
-    local data = self.db[unit].interruptData[name]
+    local data = self.db[unit].ClassIconInterrupts[name]
     if data then
         local duration = data[1]
         if not duration then return end
@@ -99,20 +94,148 @@ function Interrupt:InterruptUpdate(unit, name, icon, duration, expires, priority
     Interrupt:SendMessage("GLADIUSEX_INTERRUPT_UPDATE", unit, name, icon, duration, expires, priority)
 end
 
+local function HasInterruptEditBox()
+	return not not LibStub("AceGUI-3.0").WidgetVersions["Interrupt_EditBox"]
+end
+
 function Interrupt:GetOptions(unit)
 	-- TODO: Add system for changing priorities of the interrupts
-	return {
-		general = {
+	local options
+	options = {
+		interruptList = {
 			type = "group",
-			name = L["General"],
-			order = 1,
+			name = "Important interrupts",
+			childGroups = "tree",
+			order = 3,
 			args = {
-                sep2 = {
-                    type = "description",
-                    name = "This module shows interrupt durations over the Arena Enemy Class Icons when they are interrupted.",
-                    width = "full",
-                    order = 17,
-                }},
-        },
-    }
+				newInterrupt = {
+					type = "group",
+					name = "New interrupt",
+					desc = "New interrupt",
+					inline = true,
+					order = 1,
+					args = {
+						name = {
+							type = "input",
+							dialogControl = HasInterruptEditBox() and "Interrupt_EditBox" or nil,
+							name = L["Name"],
+							desc = "Name of the interrupt",
+							get = function() return self.newInterruptName or "" end,
+							set = function(info, value) self.newInterruptName = GetSpellInfo(value) or value end,
+							disabled = function() return not self:IsUnitEnabled(unit) end,
+							order = 1,
+						},
+						priority = {
+							type= "range",
+							name = L["Priority"],
+							desc = "Select what priority the interrupt should have - higher equals more priority",
+							get = function() return self.newInterruptPriority or "" end,
+							set = function(info, value) self.newInterruptPriority = value end,
+							disabled = function() return not self:IsUnitEnabled(unit) end,
+							min = 0,
+							max = 10,
+							step = 1,
+							order = 2,
+						},
+                        duration = {
+							type= "range",
+							name = "Duration",
+							desc = "Enter the duration of the interrupt",
+							get = function() return self.newInterruptDuration or "" end,
+							set = function(info, value) self.newInterruptDuration = value end,
+							disabled = function() return not self:IsUnitEnabled(unit) end,
+							min = 0,
+							max = 10,
+							step = 1,
+							order = 3,
+						},
+						add = {
+							type = "execute",
+							name = "Add new interrupt",
+							func = function(info)
+								self.db[unit].classIconInterrupts[self.newInterruptName] = {duration = self.newInterruptDuration or 1000, priority = self.newInterruptPriority or 0}
+								options.interruptList.args[self.newInterruptName] = self:SetupInterruptOptions(options, unit, self.newInterruptName)
+								self.newInterruptName = nil
+								GladiusEx:UpdateFrames()
+							end,
+							disabled = function() return not self:IsUnitEnabled(unit) or not (self.newInterruptName and self.newInterruptPriority) end,
+							order = 4,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	-- set some initial value for the interrupts priority
+	self.newInterruptPriority = 5
+    
+    -- set some initial value for the interrupts duration
+	self.newInterruptDuration = 4
+
+	-- setup interrupts
+	for interrupt, data in pairs(self.db[unit].classIconInterrupts) do
+        print(interrupt)
+		options.interruptList.args[interrupt] = self:SetupInterruptOptions(options, unit, interrupt)
+	end
+
+	return options
+end
+
+function Interrupt:SetupInterruptOptions(options, unit, interrupt)
+	return {
+		type = "group",
+		name = interrupt,
+		desc = interrupt,
+		get = getInterrupt,
+		set = setInterrupt,
+		disabled = function() return not self:IsUnitEnabled(unit) end,
+		args = {
+			name = {
+				type = "input",
+				dialogControl = HasInterruptEditBox() and "Interrupt_EditBox" or nil,
+				name = L["Name"],
+				desc = "Name of the interrupt",
+				disabled = function() return not self:IsUnitEnabled(unit) end,
+                set = function(info, value)
+                    local old = self.db[unit].classIconInterrupts[info[#(info) - 1]]
+                    self.db[unit].classIconInterrupts[info[#(info) - 1]] = nil 
+                    self.db[unit].classIconInterrupts[value] = {old.priority, old.duration} 
+                
+                end,
+                get = function(info, value) return info[#(info) - 1] end,
+				order = 1,
+			},
+			priority = {
+				type= "range",
+				name = L["Priority"],
+				desc = "Select what priority the interrupt should have - higher equals more priority",
+                set = function(info, value) self.db[unit].classIconInterrupts[info[#(info) - 1]].priority = value end,
+                get = function(info, value) return self.db[unit].classIconInterrupts[info[#(info) - 1]].priority end,
+				min = 0, softMax = 10, step = 1,
+				order = 2,
+			},
+            duration = {
+				type= "range",
+				name = "Duration",
+				desc = "Select what duration the interrupt should have",
+                set = function(info, value) self.db[unit].classIconInterrupts[info[#(info) - 1]].duration = value end,
+                get = function(info, value) return self.db[unit].classIconInterrupts[info[#(info) - 1]].duration end,
+				min = 0, softMax = 10, step = 1,
+				order = 3,
+			},
+			delete = {
+				type = "execute",
+				name = L["Delete"],
+				func = function(info)
+					local interrupt = info[#(info) - 1]
+					self.db[unit].classIconInterrupts[interrupt] = nil
+					options.interruptList.args[interrupt] = nil
+					GladiusEx:UpdateFrames()
+				end,
+				disabled = function() return not self:IsUnitEnabled(unit) end,
+				order = 4,
+			},
+		},
+	}
 end
