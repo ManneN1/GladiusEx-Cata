@@ -10,9 +10,9 @@ The folder "GladiusExBackport-Cata-master must be renamed to "GladiusEx" and pla
 
 The "Incoming" Absorb/Heal portion of the healthbar module has been removed as the underlying API is bugged (heals) / non-existant (absorbs) in Cataclysm.
 
-Additionally, there are no default tracked auras in the classicon module and the interrupt module has no GUI (needs to be modified in lua, currently interrupts have a prio of 7).
-
 Furthermore, the cooldowns module has been permanently removed (until someone backports LibCooldownTracker to 4.3.4).
+
+Additionally, there are no default tracked auras in the classicon module (but the GUI works, so you can add auras manually as one would expect).
 
 ### Disclaimer
 
