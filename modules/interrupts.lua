@@ -134,7 +134,7 @@ function Interrupt:GetOptions(unit)
 							disabled = function() return not self:IsUnitEnabled(unit) end,
 							min = 0,
 							max = 10,
-							step = 1,
+							step = 0.1,
 							order = 2,
 						},
                         duration = {
@@ -211,7 +211,7 @@ function Interrupt:SetupInterruptOptions(options, unit, interrupt)
 				desc = "Select what priority the interrupt should have - higher equals more priority",
                 set = function(info, value) self.db[unit].classIconInterrupts[info[#(info) - 1]].priority = value end,
                 get = function(info, value) return self.db[unit].classIconInterrupts[info[#(info) - 1]].priority end,
-				min = 0, softMax = 10, step = 1,
+				min = 0, softMax = 10, step = 0.1,
 				order = 2,
 			},
             duration = {
