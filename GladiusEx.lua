@@ -578,7 +578,6 @@ function GladiusEx:UpdateFrames()
 	self:UpdatePartyFrames()
 	self:UpdateArenaFrames()
     self:UpdateAllGUIDs()
-    print("Updated all GUIDs")
 	if not InCombatLockdown() then
 		self:ClearUpdateQueue()
 	end
@@ -720,7 +719,6 @@ function GladiusEx:CHAT_MSG_BG_SYSTEM_NEUTRAL(event, msg)
         self:CheckArenaSize()
         
         self:UpdateAllGUIDs()
-        print("Updated all GUIDs 2")
         -- start looking for updates on top-center text for new players joined
         hooksecurefunc("WorldStateAlwaysUpFrame_Update", self.CheckNumPlayers)
     end

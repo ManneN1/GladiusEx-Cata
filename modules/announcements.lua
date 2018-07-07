@@ -85,21 +85,18 @@ function Announcements:UNIT_AURA(event, unit)
 end
 
 local RES_SPELLS = {
-	--[GladiusEx:SafeGetSpellName(2008)] = true,   -- Ancestral Spirit (shaman)
-	--[GladiusEx:SafeGetSpellName(8342)] = true,   -- Defibrillate (item: Goblin Jumper Cables)
-	--[GladiusEx:SafeGetSpellName(22999)] = true,  -- Defibrillate (item: Goblin Jumper Cables XL)
-	--[GladiusEx:SafeGetSpellName(54732)] = true,  -- Defibrillate (item: Gnomish Army Knife)
-	--[GladiusEx:SafeGetSpellName(126393)] = true, -- Eternal Guardian (hunter pet: quilien)
-	--[GladiusEx:SafeGetSpellName(61999)] = true,  -- Raise Ally (death knight)
-	--[GladiusEx:SafeGetSpellName(20484)] = true,  -- Rebirth (druid)
-	--[GladiusEx:SafeGetSpellName(113269)] = true, -- Rebirth (prot/holy paladin symbiosis)
-	--[GladiusEx:SafeGetSpellName(7328)] = true,   -- Redemption (paladin)
-	--[GladiusEx:SafeGetSpellName(2006)] = true,   -- Resurrection (priest)
-	--[GladiusEx:SafeGetSpellName(115178)] = true, -- Resuscitate (monk)
-	--[GladiusEx:SafeGetSpellName(50769)] = true,  -- Revive (druid)
-	--[GladiusEx:SafeGetSpellName(982)] = true,    -- Revive Pet (hunter)
-	--[GladiusEx:SafeGetSpellName(20707)] = true,  -- Soulstone (warlock)
-	--[GladiusEx:SafeGetSpellName(83968)] = true,  -- Mass Resurrection
+	[GladiusEx:SafeGetSpellName(2008)] = true,   -- Ancestral Spirit (shaman)
+	[GladiusEx:SafeGetSpellName(8342)] = true,   -- Defibrillate (item: Goblin Jumper Cables)
+	[GladiusEx:SafeGetSpellName(22999)] = true,  -- Defibrillate (item: Goblin Jumper Cables XL)
+	[GladiusEx:SafeGetSpellName(54732)] = true,  -- Defibrillate (item: Gnomish Army Knife)
+	[GladiusEx:SafeGetSpellName(61999)] = true,  -- Raise Ally (death knight)
+	[GladiusEx:SafeGetSpellName(20484)] = true,  -- Rebirth (druid)
+	[GladiusEx:SafeGetSpellName(7328)] = true,   -- Redemption (paladin)
+	[GladiusEx:SafeGetSpellName(2006)] = true,   -- Resurrection (priest)
+	[GladiusEx:SafeGetSpellName(50769)] = true,  -- Revive (druid)
+	[GladiusEx:SafeGetSpellName(982)] = true,    -- Revive Pet (hunter)
+	[GladiusEx:SafeGetSpellName(20707)] = true,  -- Soulstone (warlock)
+	[GladiusEx:SafeGetSpellName(83968)] = true,  -- Mass Resurrection
 }
 
 function Announcements:UNIT_SPELLCAST_START(event, unit, spell, rank)
