@@ -103,7 +103,7 @@ local function GetDefaultImportantAuras()
         [GladiusEx:SafeGetSpellName(1330)] = 7, -- Garrote  Silence
         [GladiusEx:SafeGetSpellName(15487)] = 7, -- Silence
         [GladiusEx:SafeGetSpellName(31935)] = 7, -- Avenger's Shield
-        [GladiusEx:SafeGetSpellName(18469)] = 7, -- Silenced  Improved Counterspell
+        [GladiusEx:SafeGetSpellName(18469)] = 7, -- Silenced  (Improved Counterspell)
         [GladiusEx:SafeGetSpellName(34490)] = 7, -- Silencing Shot
         [GladiusEx:SafeGetSpellName(81261)] = 7, -- Solar Beam
         [GladiusEx:SafeGetSpellName(47476)] = 7, -- Strangulate
