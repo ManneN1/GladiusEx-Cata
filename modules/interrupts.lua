@@ -14,7 +14,7 @@ local defaults = {
 
 local Interrupt = GladiusEx:NewGladiusExModule("InterruptsEx", defaults, defaults)
     
-INTERRUPTS = {   
+local INTERRUPTS = {   
     [6552]  = { duration = 4 }, -- [Warrior] Pummel
     [48827] = { duration = 3 }, -- [Paladin] Avenger's Shield
     [1766]  = { duration = 5 }, -- [Rogue] Kick
@@ -60,8 +60,6 @@ function Interrupt:COMBAT_LOG_EVENT_UNFILTERED(event, ...)
         -- not interruptible
         return
     end
-    
-    print(subEvent, spellID, destGUID)
     
     if INTERRUPTS[spellID] == nil then return end
     local duration = INTERRUPTS[spellID].duration

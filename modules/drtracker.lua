@@ -254,7 +254,7 @@ function DRTracker:DRFaded(unit, spellID, event)
     self:SortIcons(unit)
 end
 
-function DRTracker:COMBAT_LOG_EVENT_UNFILTERED(_, ctime, eventType, cGUID, cName, cFlags, destGUID, dName, dFlags, spellID, spellName, spellSchool, auraType)
+function DRTracker:COMBAT_LOG_EVENT_UNFILTERED(_, ctime, eventType, _, cGUID, _, _, _, destGUID, _, _, _, spellID, _, _, auraType)
     -- Enemy had a debuff refreshed before it faded
     -- Buff or debuff faded from an enemy
     if eventType == "SPELL_AURA_APPLIED" or eventType == "SPELL_AURA_REFRESH" or eventType == "SPELL_AURA_REMOVED" then
@@ -263,6 +263,7 @@ function DRTracker:COMBAT_LOG_EVENT_UNFILTERED(_, ctime, eventType, cGUID, cName
             local unit = GladiusEx:GetUnitIdByGUID(destGUID)
             if unit and self.frame[unit] then
                 
+                --[[
                 -- Bug workaround: for some spells, when spectating (only), _REFRESH is fired right after _APPLIED causing bugs (on many servers)
                 if GladiusEx:IsSpectating() and cGUID and spellID and destGUID then
                     if eventType == "SPELL_AURA_APPLIED" then
@@ -275,6 +276,7 @@ function DRTracker:COMBAT_LOG_EVENT_UNFILTERED(_, ctime, eventType, cGUID, cName
                         end
                     end
                 end
+                --]]
                 
                 -- Dynamic DR reset early if we have a full duration aura on _REFRESH / _APPLIED 
                 local tracked = (self.frame[unit] and self.frame[unit].tracker) and self.frame[unit].tracker[drCat] or nil
@@ -304,13 +306,13 @@ function DRTracker:HasFullDurationAura(unit, cGUID, spellID)
     local fullDuration = GladiusEx.auraDurations[spellID]
     
     if fullDuration then
-        local srcUnit = GladiusEx:GetUnitIdByGUID(srcGUID)
+        local srcUnit = GladiusEx:GetUnitIdByGUID(cGUID)
 
         for i=1, 40 do
             local name, _, _, _, _, duration, _, unitCaster, _, _, sSpellID, srcGUID = UnitAura(unit, i, "HARMFUL")
             if not name then break end
             if sSpellID == spellID then
-                if ((not srcGUID or srcGUID == cGUID) or ((not unitCaster and not scrUnit) or (unitCaster and srcUnit and unitCaster == srcUnit))) then
+                if ((not srcGUID or (type(srcGUID) == "string" and srcGUID == cGUID)) or ((not unitCaster and not scrUnit) or (unitCaster and srcUnit and unitCaster == srcUnit))) then
                     -- Some classes/races have CC duration reduction effects, thus we have to check if it's at least longer than 50% of fullDuration
                     -- which would imply it's possibly reduced by effects - but at least not DRd (which would be less than or equal to 50%)
                     -- Note: No class/race/comp combo has the possibility to reduce a CC more than than 50%
