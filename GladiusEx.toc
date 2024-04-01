@@ -1,12 +1,8 @@
-﻿## Interface: 50400
+﻿## Interface: 30300
 ## Title: GladiusEx
 ## Notes: Arena unit frames
 ## SavedVariables: GladiusExDB
-## OptionalDeps: LibStub, LibFunctional-1.0, Ace3, DRData-1.0, LibSharedMedia-3.0, AceTimer3-0, AceGUI-3.0-SharedMediaWidgets, AceGUI-3.0-Spell-EditBox, LibCooldownTracker-1.0, LibDualSpec-1.0, LibRangeCheck-2.0, LibDispellable-1.0, Clique, Masque
-## X-Curse-Packaged-Version: v0.33-beta
-## X-Curse-Project-Name: GladiusEx
-## X-Curse-Project-ID: gladiusex
-## X-Curse-Repository-ID: wow/gladiusex/mainline
+## OptionalDeps: LibStub, LibFunctional-1.0, Ace3, DRData-1.0, LibSharedMedia-3.0, AceTimer3-0, AceGUI-3.0-SharedMediaWidgets, AceGUI-3.0-Spell-EditBox, LibCooldownTracker-1.0, LibDualSpec-1.0, LibRangeCheck-2.0, LibAuraInfo-1.0, LibDispellable-1.0, Clique, ButtonFacade
 
 embeds.xml
 
@@ -16,8 +12,9 @@ localization\locales.lua
 GladiusEx.lua
 
 options.lua
-speclist.lua
+Data.lua
 
+modules\spectate.lua
 modules\alerts.lua
 modules\announcements.lua
 modules\auras.lua
