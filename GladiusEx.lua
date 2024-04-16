@@ -914,7 +914,7 @@ function GladiusEx:PLAYER_REGEN_ENABLED()
 end
 
 function GladiusEx:UNIT_NAME_UPDATE(event, unit)
-    if not self:IsHandledUnit(unit) then return end
+    if (not IsActiveBattlefieldArena() and not self:IsTesting()) or not self:IsHandledUnit(unit) then return end
 
     self:UpdateUnitGUID(event, unit)
     self:CheckArenaSize(unit)
