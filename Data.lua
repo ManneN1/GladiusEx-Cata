@@ -29,6 +29,9 @@ function GladiusEx:GetSpecList()
         [GladiusEx:SafeGetSpellName(36554)] = 261,      -- Shadowstep
         [GladiusEx:SafeGetSpellName(31223)] = 261,      -- Master of Subtlety
         [GladiusEx:SafeGetSpellName(51713)] = 261,      -- Shadow Dance
+        [GladiusEx:SafeGetSpellName(51698)] = 261,      -- Honor Among Thieves R1
+        [GladiusEx:SafeGetSpellName(51700)] = 261,      -- Honor Among Thieves R2
+        [GladiusEx:SafeGetSpellName(51701)] = 261,      -- Honor Among Thieves R3
         -- PRIEST
         [GladiusEx:SafeGetSpellName(47540)] = 256,      -- Penance
         [GladiusEx:SafeGetSpellName(10060)] = 256,      -- Power Infusion
@@ -46,7 +49,7 @@ function GladiusEx:GetSpecList()
         [GladiusEx:SafeGetSpellName(15286)] = 258,      -- Vampiric Embrace
         -- DEATHKNIGHT                                  
         [GladiusEx:SafeGetSpellName(55050)] = 250,      -- Heart Strike
-        [GladiusEx:SafeGetSpellName(49016)] = 250,      -- Hysteria
+        --[GladiusEx:SafeGetSpellName(49016)] = 250,      -- Hysteria
         [GladiusEx:SafeGetSpellName(53138)] = 250,      -- Abomination's Might
         [GladiusEx:SafeGetSpellName(49203)] = 251,      -- Hungering Cold
         [GladiusEx:SafeGetSpellName(49143)] = 251,      -- Frost Strike
@@ -90,12 +93,14 @@ function GladiusEx:GetSpecList()
         -- HUNTER
         [GladiusEx:SafeGetSpellName(19577)] = 253,      -- Intimidation
         [GladiusEx:SafeGetSpellName(20895)] = 253,      -- Spirit Bond
+        [GladiusEx:SafeGetSpellName(75447)] = 253,      -- Ferocious Inspiration
         [GladiusEx:SafeGetSpellName(19506)] = 254,      -- Trueshot Aura
         [GladiusEx:SafeGetSpellName(34490)] = 254,      -- Silencing Shot
         [GladiusEx:SafeGetSpellName(53209)] = 254,      -- Chimera Shot
         [GladiusEx:SafeGetSpellName(19434)] = 254,      -- Aimed Shot
         [GladiusEx:SafeGetSpellName(53301)] = 255,      -- Explosive Shot
         [GladiusEx:SafeGetSpellName(19386)] = 255,      -- Wyvern Sting
+		
         -- DRUID
         [GladiusEx:SafeGetSpellName(48505)] = 102,      -- Starfall
         [GladiusEx:SafeGetSpellName(50516)] = 102,      -- Typhoon
@@ -632,7 +637,7 @@ GladiusEx.auraDurations = {
     [58861] = 2,   -- Bash (Spirit Wolves)
     [18425] = 1.5, -- Silenced - Improved Kick
     [7922]  = 1.5, -- Charge Stun
+    [408] = 6,     -- Kidney Shot (length varies, so if someone is using a 1cp Kidney to DR with it will not properly track it as a reset)
+    [22570] = 5,   -- Maim (length varies, so if someone is using a 1cp Maim to DR with it will not properly track it as a reset)
   --[81261] = 10,  -- Solar Beam (static, unusable)
-  --[408] = 6,     -- Kidney Shot (varies)
-  --[22570] = 5,   -- Maim (varies)
 }
