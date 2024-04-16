@@ -22,6 +22,8 @@ local defaults = {
     drTrackerGlossColor = { r = 1, g = 1, b = 1, a = 0.4 },
     drTrackerCooldown = true,
     drTrackerCooldownReverse = false,
+    drTrackerBorder = true,
+    drTrackerText = true,
     drFontSize = 18,
     drCategories = {},
     drIcons = {},
@@ -90,7 +92,11 @@ function DRTracker:CreateIcon(unit, drCat)
     f.texture = _G[f:GetName().."Icon"]
     f.normalTexture = _G[f:GetName().."NormalTexture"]
     f.cooldown = _G[f:GetName().."Cooldown"]
+
     f.text = f:CreateFontString(nil, "OVERLAY")
+
+    f.border = f:CreateTexture(nil, "OVERLAY")
+    f.border:SetAllPoints()
 
     self.frame[unit].tracker[drCat] = f
 end
@@ -107,6 +113,8 @@ function DRTracker:UpdateIcon(unit, drCat)
     tracked:SetNormalTexture([[Interface\AddOns\GladiusEx\media\gloss]])
     tracked.normalTexture:SetVertexColor(self.db[unit].drTrackerGlossColor.r, self.db[unit].drTrackerGlossColor.g,
         self.db[unit].drTrackerGlossColor.b, self.db[unit].drTrackerGloss and self.db[unit].drTrackerGlossColor.a or 0)
+
+    tracked.border:SetTexture([[Interface\Buttons\UI-Quickslot-Depress]])
 
     -- cooldown
     tracked.cooldown:SetReverse(self.db[unit].drTrackerCooldownReverse)
@@ -213,8 +221,21 @@ function DRTracker:DRFaded(unit, spellID, event)
     end
 
     local text, r, g, b = unpack(drTexts[tracked.diminished])
-    tracked.text:SetText(text)
-    tracked.text:SetTextColor(r,g,b)
+    
+    if self.db[unit].drTrackerText then
+        tracked.text:Show()
+        tracked.text:SetText(text)
+        tracked.text:SetTextColor(r,g,b)
+    else
+        tracked.text:Hide()
+    end
+    
+    if self.db[unit].drTrackerBorder then
+        tracked.border:SetVertexColor(r, g, b, 1)
+        tracked.border:Show()
+    else
+        tracked.border:Hide()
+    end
     
     local txtID = spellID 
     if self.db[unit].drIcons[drCat] ~= nil then
@@ -483,6 +504,13 @@ function DRTracker:GetOptions(unit)
                             width = "full",
                             order = 40,
                         },
+                        drTrackerBorder = {
+                            type = "toggle",
+                            name = L["DR-Colored Border"],
+                            desc = L["Adds a border to the icon the color of which will be the DR color"],
+                            disabled = function() return not self:IsUnitEnabled(unit) end,
+                            order = 34,
+                        },
                         drTrackerFrameLevel = {
                             type = "range",
                             name = L["Frame level"],
@@ -538,6 +566,13 @@ function DRTracker:GetOptions(unit)
                             name = L["Text size"],
                             desc = L["Text size of the DR text"],
                             min = 1, max = 20, step = 1,
+                            disabled = function() return not self:IsUnitEnabled(unit) or not self.db[unit].drTrackerText end,
+                            order = 10,
+                        },
+                        drTrackerText = {
+                            type = "toggle",
+                            name = L["DR Text"],
+                            desc = L["Show the current DR on the icon as text"],
                             disabled = function() return not self:IsUnitEnabled(unit) end,
                             order = 15,
                         },
