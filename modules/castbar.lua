@@ -50,6 +50,10 @@ local defaults = {
         castTimeTextOffsetY = 0,
 }
 
+local interruptableExceptions = {
+    ["Scare Beast"] = true,
+}
+
 local CastBar = GladiusEx:NewGladiusExModule("CastBar",
     fn.merge(defaults, {
         castBarAttachTo = "Frame",
@@ -89,6 +93,7 @@ function CastBar:OnEnable()
     self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
     self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE", "UNIT_SPELLCAST_DELAYED")
     self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP", "UNIT_SPELLCAST_STOP")
+    self:RegisterEvent("UNIT_AURA")
 
     if not self.frame then
         self.frame = {}
@@ -161,6 +166,16 @@ function CastBar:UNIT_SPELLCAST_STOP(event, unit, spell)
     self:CastEnd(self.frame[unit])
 end
 
+function CastBar:UNIT_AURA(event, unit)
+    local f = self.frame[unit]
+    if not f then return end
+    if not f.isCasting or f.isChanneling then return end
+
+    if not self:DetectSpecialInterruptImmunity(unit, f.spellName) then
+        self:SetInterruptible(unit, true)
+    end
+end
+
 function CastBar:UNIT_SPELLCAST_DELAYED(event, unit)
     if not self.frame[unit] then return end
     if not self.frame[unit].isCasting or self.frame[unit].isChanneling then return end
@@ -222,6 +237,16 @@ local function CastUpdate(self)
     end
 end
 
+-- For some reason the Cata client doesn't pick up on these non-interruptables
+function CastBar:DetectSpecialInterruptImmunity(unit, castingSpellName)
+    local _, class = UnitClass(unit)
+    if  (class == "HUNTER" and not interruptableExceptions[castingSpellName]) or 
+        (class == "PRIEST" and UnitAura(unit, "Strength of Soul", nil, "HELPFUL")) or
+        (class == "PALADIN" and UnitAura(unit, "Concentration Aura", nil, "HELPFUL") and UnitAura(unit, "Aura Mastery", nil, "HELPFUL")) then
+        return true
+    end
+end
+
 function CastBar:CastStart(unit, channel)
     local f = self.frame[unit]
     if not f then return end
@@ -244,8 +269,7 @@ function CastBar:CastStart(unit, channel)
 
         f.icon:SetTexture(icon)
         
-        -- K: Special work-around because SoS doesn't show up as an interrupt immunity ingame
-        if select(2, UnitClass(unit)) == "PRIEST" and UnitAura(unit, "Strength of Soul", nil, "HELPFUL") then
+        if self:DetectSpecialInterruptImmunity(unit, f.spellName) then
             notInterruptible = true
         end
 
