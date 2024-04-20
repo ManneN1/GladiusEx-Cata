@@ -100,7 +100,7 @@ function GladiusEx:GetSpecList()
         [GladiusEx:SafeGetSpellName(19434)] = 254,      -- Aimed Shot
         [GladiusEx:SafeGetSpellName(53301)] = 255,      -- Explosive Shot
         [GladiusEx:SafeGetSpellName(19386)] = 255,      -- Wyvern Sting
-		
+        
         -- DRUID
         [GladiusEx:SafeGetSpellName(48505)] = 102,      -- Starfall
         [GladiusEx:SafeGetSpellName(50516)] = 102,      -- Typhoon
@@ -112,7 +112,6 @@ function GladiusEx:GetSpecList()
         [GladiusEx:SafeGetSpellName(18562)] = 105,      -- Swiftmend
         [GladiusEx:SafeGetSpellName(48438)] = 105,      -- Wild Growth      
         [GladiusEx:SafeGetSpellName(33891)] = 105,      -- Tree of Life     
-        --[GladiusEx:SafeGetSpellName(65139)]   = 105,      -- Tree of Life
     }
 end
 
@@ -136,6 +135,7 @@ function GladiusEx:GetDefaultImportantAuras()
         [GladiusEx:SafeGetSpellName(20252)] = 9, -- Intercept
         [GladiusEx:SafeGetSpellName(28271)] = 9, -- Polymorph (Turtle)
         [GladiusEx:SafeGetSpellName(28272)] = 9, -- Polymorph (Pig)
+        [GladiusEx:SafeGetSpellName(82691)] = 9, -- Ring of Frost
         -- [GladiusEx:SafeGetSpellName(28445)] = 9, -- Improved Concussive Shot (Stun)
         [GladiusEx:SafeGetSpellName(37506)] = 9, -- Scatter Shot
         [GladiusEx:SafeGetSpellName(3355)] = 9, --  Freezing Trap Effect
@@ -180,6 +180,7 @@ function GladiusEx:GetDefaultImportantAuras()
         [GladiusEx:SafeGetSpellName(50519)] = 9, -- Sonic Blast
         [GladiusEx:SafeGetSpellName(19386)] = 9, -- Wyvern Sting
         [GladiusEx:SafeGetSpellName(19503)] = 9, -- Scatter Shot
+        [GladiusEx:SafeGetSpellName(90337)] = 9, -- Bad Manner (Monkey Pet)
         [GladiusEx:SafeGetSpellName(1513)] = 9, -- Scare Beast
         [GladiusEx:SafeGetSpellName(24394)] = 9, -- Intimidation
         [GladiusEx:SafeGetSpellName(1499)] = 9,  -- Freezing Trap
@@ -188,6 +189,7 @@ function GladiusEx:GetDefaultImportantAuras()
         [GladiusEx:SafeGetSpellName(22570)] = 9, -- Maim
         [GladiusEx:SafeGetSpellName(2637)] = 9, -- Hibernate
         [GladiusEx:SafeGetSpellName(5211)] = 9, -- Bash
+        [GladiusEx:SafeGetSpellName(90337)] = 9, -- Bad Manner
         [GladiusEx:SafeGetSpellName(49203)] = 9, -- Hungering Cold
         [GladiusEx:SafeGetSpellName(47481)] = 9, -- Gnaw
         [GladiusEx:SafeGetSpellName(45438)] = 8.9, -- Ice Block
@@ -198,6 +200,7 @@ function GladiusEx:GetDefaultImportantAuras()
         [GladiusEx:SafeGetSpellName(19574)] = 8.9, -- Bestial Wrath
         [GladiusEx:SafeGetSpellName(34692)] = 8.9, -- The Beast Within
         [GladiusEx:SafeGetSpellName(6940)] = 8.8, -- Hand of Sacrifice
+        [GladiusEx:SafeGetSpellName(62618)] = 8.7, -- Strength of Soul
         [GladiusEx:SafeGetSpellName(23920)] = 8.7, -- Spell Reflection
         [GladiusEx:SafeGetSpellName(8178)] = 8.7, -- Grounding Totem Effect
         [GladiusEx:SafeGetSpellName(31224)] = 8.7, -- Cloak of Shadows
@@ -266,22 +269,23 @@ function GladiusEx:GetDefaultImportantAuras()
         [GladiusEx:SafeGetSpellName(31884)] = 2.5, -- Avenging Wrath
         [GladiusEx:SafeGetSpellName(33206)] = 2.5, -- Pain Suppression
         [GladiusEx:SafeGetSpellName(498)] = 2.5, -- Divine Protection
+        [GladiusEx:SafeGetSpellName(49016)] = 2.5, -- Unholy Frenzy
         [GladiusEx:SafeGetSpellName(12328)] = 2.4, -- Sweeping Strikes
         [GladiusEx:SafeGetSpellName(13877)] = 2.4, -- Blade Flurry
-        [GladiusEx:SafeGetSpellName(32182)] = 0.4, -- Heroism
-        [GladiusEx:SafeGetSpellName(2825)] = 0.4, -- Bloodlust
         [GladiusEx:SafeGetSpellName(22842)] = 2.1, -- Frenzied Regeneration
         [GladiusEx:SafeGetSpellName(10060)] = 2, -- Power Infusion
         [GladiusEx:SafeGetSpellName(12975)] = 2, -- Last Stand
         [GladiusEx:SafeGetSpellName(14751)] = 2, -- Inner Focus
         [GladiusEx:SafeGetSpellName(7812)] = 2, -- Sacrifice
         [GladiusEx:SafeGetSpellName(22812)] = 2, -- Barkskin
+        [GladiusEx:SafeGetSpellName(61336)] = 2, -- Survival Instincts
         [GladiusEx:SafeGetSpellName(871)] = 1.9, -- Shield Wall
         [GladiusEx:SafeGetSpellName(31842)] = 1.5, -- Divine Illumination
         -- [GladiusEx:SafeGetSpellName(3034)] = 1.5, -- Viper Sting
         [GladiusEx:SafeGetSpellName(29166)] = 1.5, -- Innervate
         [GladiusEx:SafeGetSpellName(54428)] = 1.5, -- Divine Plea
         [GladiusEx:SafeGetSpellName(45182)] = 1.5, -- Cheating Death
+        [GladiusEx:SafeGetSpellName(69369)] = 1.5, -- Predator's Swiftness
         [GladiusEx:SafeGetSpellName(6346)] = 1.4, -- Fear Ward
         -- [GladiusEx:SafeGetSpellName(2687)] = 1.1, -- Bloodrage
         [GladiusEx:SafeGetSpellName(12051)] = 1.1, -- Evocation
@@ -296,6 +300,8 @@ function GladiusEx:GetDefaultImportantAuras()
         [GladiusEx:SafeGetSpellName(11426)] = 0.8, -- Ice Barrier
         [GladiusEx:SafeGetSpellName(1543)] = 0.8, -- Flare
         [GladiusEx:SafeGetSpellName(34709)] = 0.8, -- Shadow Sight
+        [GladiusEx:SafeGetSpellName(32182)] = 0.6, -- Heroism
+        [GladiusEx:SafeGetSpellName(2825)] = 0.6, -- Bloodlust
         [GladiusEx:SafeGetSpellName(2645)] = 0.5, -- Ghost Wolf
         --[33891]                            = 0.5, -- Tree of Life (cannot use SafeGetSpellName because there's another aura with the same name that everyone in the team gets)
         [GladiusEx:SafeGetSpellName(5487)] = 0.5, -- Bear Form
@@ -576,6 +582,7 @@ GladiusEx.auraDurations = {
     [28272] = 8,   -- Polymorph: Pig
     [61721] = 8,   -- Polymorph: Rabbit
     [61305] = 8,   -- Polymorph: Black Cat
+    [82691] = 8,   -- Ring of Frost
     [51514] = 8,   -- Hex
     [6770]  = 8,   -- Sap
     [19386] = 6,   -- Wyvern Sting
