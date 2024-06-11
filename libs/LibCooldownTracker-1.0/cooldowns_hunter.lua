@@ -279,7 +279,7 @@ LCT_SpellData[1499] = {
     opt_lower_cooldown = 24,
     class = "HUNTER",
     cooldown = 30,
-    sets_cooldown = {
+    sets_cooldowns = {
         -- Freezing Arrow
         { spellid = 60192, cooldown = 30 },
         -- Frost Trap

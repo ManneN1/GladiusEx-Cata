@@ -301,7 +301,7 @@ local function CooldownEvent(event, unit, spellid)
 
 				-- set other cooldowns
 
-				local sets_cooldowns = spelldata.sets_cooldown or spelldata.sets_cooldown and { spelldata.sets_cooldown } or {}
+				local sets_cooldowns = spelldata.sets_cooldowns or spelldata.sets_cooldown and { spelldata.sets_cooldown } or {}
                 
                 for i = 1, #sets_cooldowns do
                     local cd = sets_cooldowns[i]
