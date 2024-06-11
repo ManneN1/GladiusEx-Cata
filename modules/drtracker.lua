@@ -205,7 +205,7 @@ function DRTracker:DRFaded(unit, spellID, event)
             tracked.diminished = DRData:NextDR(tracked.diminished)
             
             -- K: Fallback edge-case early DR reset detection
-            if oldDiminished and oldDiminished == 0.25 and tracked.diminished == 0 then
+            if oldDiminished and oldDiminished == 0 and tracked.diminished == 0 then
                 tracked.diminished = 1
             end
         else
@@ -215,7 +215,7 @@ function DRTracker:DRFaded(unit, spellID, event)
     end
     
     -- K: This could happen if a _REMOVED is received before an _APPLIED/_REFRESH
-    -- when using showOnApply (e.g, due to joining late/spectate etc) 
+    -- when using showOnApply, or reversed if not using it (could happen due to late join)
     if not tracked.active then
         return 
     end
