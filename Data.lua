@@ -76,10 +76,10 @@ function GladiusEx:GetSpecList()
         [GladiusEx:SafeGetSpellName(48181)] = 265,      -- Haunt
         [GladiusEx:SafeGetSpellName(30108)] = 265,      -- Unstable Affliction
         [GladiusEx:SafeGetSpellName(59672)] = 266,      -- Metamorphosis
-        [GladiusEx:SafeGetSpellName(50769)] = 267,      -- Chaos Bolt
         [GladiusEx:SafeGetSpellName(30283)] = 267,      -- Shadowfury
         [GladiusEx:SafeGetSpellName(30299)] = 267,      -- Nether Protection
         [GladiusEx:SafeGetSpellName(17962)] = 267,      -- Conflagrate
+        [GladiusEx:SafeGetSpellName(50769)] = 267,      -- Chaos Bolt
         -- SHAMAN
         [GladiusEx:SafeGetSpellName(51490)] = 262,      -- Thunderstorm
         [GladiusEx:SafeGetSpellName(16166)] = 262,      -- Elemental Mastery
