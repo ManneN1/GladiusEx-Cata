@@ -3,7 +3,6 @@ local L = LibStub("AceLocale-3.0"):GetLocale("GladiusEx")
 local fn = LibStub("LibFunctional-1.0")
 local LSM = LibStub("LibSharedMedia-3.0")
 local DRData = LibStub("DRData-1.0")
-local LibAuraInfo = LibStub("LibAuraInfo-1.0")
 
 -- global functions
 local strfind = string.find
